@@ -1,10 +1,12 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from modeltranslation.admin import TabbedTranslationAdmin
+from apps.common.admin_forms import AutoPopulateTranslationFieldsForm
 from .models import Contact, SocialLink
 
 @admin.register(Contact)
 class ContactAdmin(ModelAdmin, TabbedTranslationAdmin):
+    form = AutoPopulateTranslationFieldsForm
     list_display = ('address', 'phone', 'email')
     search_fields = ('address', 'phone', 'email', 'address_uz', 'address_en', 'address_fr')
     ordering = ('-created_at',)

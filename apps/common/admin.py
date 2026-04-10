@@ -1,6 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from modeltranslation.admin import TabbedTranslationAdmin
+from apps.common.admin_forms import AutoPopulateTranslationFieldsForm
 from .models import History, StaticPage
 
 admin.site.site_header = "UFU boshqaruv paneli"
@@ -9,6 +10,7 @@ admin.site.index_title = "Ma'lumotlarni boshqarish"
 
 @admin.register(History)
 class HistoryAdmin(ModelAdmin, TabbedTranslationAdmin):
+    form = AutoPopulateTranslationFieldsForm
     list_display = ('title', 'created_at')
     search_fields = ('title', 'title_uz', 'title_en', 'title_fr')
     ordering = ('-created_at',)
@@ -17,6 +19,7 @@ class HistoryAdmin(ModelAdmin, TabbedTranslationAdmin):
 
 @admin.register(StaticPage)
 class StaticPageAdmin(ModelAdmin, TabbedTranslationAdmin):
+    form = AutoPopulateTranslationFieldsForm
     list_display = ('title', 'slug')
     search_fields = ('title', 'slug', 'title_uz', 'title_en', 'title_fr')
     ordering = ('title',)
