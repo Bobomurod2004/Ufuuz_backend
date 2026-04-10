@@ -1,0 +1,57 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans "Kirish" %} | UFU Admin</title>
+    <link rel="stylesheet" href="{% static 'admin/unfold_custom.css' %}">
+    <link rel="stylesheet" href="{% static 'admin/ufu_login.css' %}">
+</head>
+<body class="ufu-login-body">
+    <main class="ufu-login-shell">
+        <section class="ufu-brand-panel">
+            <img src="{% static 'admin/ufu-mark.svg' %}" alt="UFU" class="ufu-logo">
+            <h1>Uzbek-French University</h1>
+            <p>Universitet boshqaruv paneliga xush kelibsiz.</p>
+            <ul>
+                <li>Yangiliklar va sahifalarni boshqarish</li>
+                <li>Fakultet va kafedralarni yangilash</li>
+                <li>Aloqa ma'lumotlarini tez tahrirlash</li>
+            </ul>
+        </section>
+
+        <section class="ufu-form-panel">
+            <div class="ufu-form-card">
+                <h2>Admin kirish</h2>
+                <p class="ufu-muted">Davom etish uchun login va parolni kiriting.</p>
+
+                {% if form.errors and not form.non_field_errors %}
+                    <p class="ufu-error">Login yoki parol noto'g'ri. Qayta urinib ko'ring.</p>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <p class="ufu-error">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+                <form action="{{ app_path }}" method="post" id="login-form">
+                    {% csrf_token %}
+                    <label for="id_username">Foydalanuvchi nomi</label>
+                    <input type="text" name="username" id="id_username" autofocus autocapitalize="none" autocomplete="username" maxlength="254" required>
+
+                    <label for="id_password">Parol</label>
+                    <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    <button type="submit">Kirish</button>
+                </form>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

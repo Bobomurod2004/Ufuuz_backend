@@ -1,0 +1,175 @@
+:root {
+  --ufu-bg: #f3f8f7;
+  --ufu-ink: #12212b;
+  --ufu-muted: #4a5a64;
+  --ufu-primary: #0b7285;
+  --ufu-primary-deep: #0f4d5c;
+  --ufu-card: #ffffff;
+  --ufu-line: #d7e4e8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.ufu-login-body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Noto Sans", sans-serif;
+  color: var(--ufu-ink);
+  background:
+    radial-gradient(circle at 10% 10%, #d7f0f6 0, transparent 40%),
+    radial-gradient(circle at 90% 90%, #d9efe6 0, transparent 35%),
+    linear-gradient(135deg, #eff8ff 0%, #f2fbf8 100%);
+}
+
+.ufu-login-shell {
+  min-height: 100vh;
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr;
+  gap: 24px;
+  padding: 24px;
+}
+
+.ufu-brand-panel {
+  background: linear-gradient(150deg, #0f4d5c 0%, #146f81 60%, #1d8ea2 100%);
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 24px 50px rgba(15, 77, 92, 0.35);
+}
+
+.ufu-logo {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 16px;
+}
+
+.ufu-brand-panel h1 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1.18;
+}
+
+.ufu-brand-panel p {
+  margin: 14px 0 22px;
+  font-size: 17px;
+  opacity: 0.95;
+}
+
+.ufu-brand-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.9;
+}
+
+.ufu-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ufu-form-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 18px;
+  background: var(--ufu-card);
+  border: 1px solid var(--ufu-line);
+  box-shadow: 0 20px 44px rgba(14, 48, 58, 0.16);
+  padding: 30px;
+}
+
+.ufu-form-card h2 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.ufu-muted {
+  margin: 0 0 18px;
+  color: var(--ufu-muted);
+}
+
+#login-form {
+  display: grid;
+  gap: 10px;
+}
+
+#login-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#login-form input {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #c6d8de;
+  padding: 0 12px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#login-form input:focus {
+  border-color: #23a2bc;
+  box-shadow: 0 0 0 4px rgba(35, 162, 188, 0.15);
+}
+
+#login-form button {
+  margin-top: 10px;
+  height: 46px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--ufu-primary) 0%, var(--ufu-primary-deep) 100%);
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+#login-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(11, 114, 133, 0.28);
+}
+
+.ufu-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #8e1b1b;
+  border: 1px solid #ffcaca;
+}
+
+@media (max-width: 980px) {
+  .ufu-login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .ufu-brand-panel {
+    padding: 28px;
+  }
+
+  .ufu-brand-panel h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 580px) {
+  .ufu-login-shell {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .ufu-form-card,
+  .ufu-brand-panel {
+    border-radius: 14px;
+    padding: 18px;
+  }
+}

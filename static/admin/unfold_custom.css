@@ -1,0 +1,42 @@
+/* UFU admin uchun yengil va toza brending uslubi */
+:root {
+  --primary-50: #ecfeff;
+  --primary-100: #cffafe;
+  --primary-200: #a5f3fc;
+  --primary-300: #67e8f9;
+  --primary-400: #22d3ee;
+  --primary-500: #06b6d4;
+  --primary-600: #0891b2;
+  --primary-700: #0e7490;
+  --primary-800: #155e75;
+  --primary-900: #164e63;
+}
+
+#header,
+.sidebar {
+  backdrop-filter: blur(6px);
+}
+
+.module,
+.card,
+fieldset {
+  border-radius: 14px !important;
+}
+
+.object-tools a,
+.submit-row input,
+.submit-row a,
+.button,
+input[type="submit"] {
+  border-radius: 10px !important;
+}
+
+.breadcrumbs {
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.change-list .results table {
+  border-radius: 12px;
+  overflow: hidden;
+}
