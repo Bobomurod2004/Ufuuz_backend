@@ -1,8 +1,8 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 from .views import FacultyViewSet, DepartmentViewSet
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register('faculties', FacultyViewSet)
 router.register('departments', DepartmentViewSet)
 
