@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import History, StaticPage
+from .models import History, StaticPage, Slider, SliderItem
 
 
 class HistorySerializer(serializers.ModelSerializer):
@@ -24,6 +24,38 @@ class StaticPageSerializer(serializers.ModelSerializer):
             'title',
             'slug',
             'content',
+            'created_at',
+            'updated_at',
+        )
+        read_only_fields = ('id', 'created_at', 'updated_at')
+
+
+class SliderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SliderItem
+        fields = (
+            'id',
+            'title',
+            'description',
+            'image',
+            'link',
+            'order',
+            'is_active',
+        )
+        read_only_fields = ('id',)
+
+
+class SliderSerializer(serializers.ModelSerializer):
+    items = SliderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Slider
+        fields = (
+            'id',
+            'title',
+            'is_active',
+            'order',
+            'items',
             'created_at',
             'updated_at',
         )

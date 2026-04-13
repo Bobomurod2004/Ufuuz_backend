@@ -2,7 +2,7 @@ from django.contrib import admin
 from unfold.admin import ModelAdmin
 from modeltranslation.admin import TabbedTranslationAdmin
 from apps.common.admin_mixins import TranslationSafeAdminMixin
-from .models import History, StaticPage
+from .models import History, StaticPage, Slider, SliderItem
 
 admin.site.site_header = "UFU boshqaruv paneli"
 admin.site.site_title = "UFU Admin"
@@ -24,3 +24,28 @@ class StaticPageAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAd
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
     prepopulated_fields = {"slug": ("title",)}
+
+class SliderItemInline(admin.TabularInline):
+    model = SliderItem
+    extra = 1
+    fields = ('title', 'description', 'image', 'link', 'order', 'is_active')
+    ordering = ('order',)
+
+@admin.register(Slider)
+class SliderAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+    list_display = ('title', 'is_active', 'order')
+    search_fields = ('title', 'title_uz', 'title_en', 'title_fr')
+    ordering = ('order',)
+    list_per_page = 20
+    readonly_fields = ('created_at', 'updated_at')
+    inlines = [SliderItemInline]
+    list_filter = ('is_active',)
+
+@admin.register(SliderItem)
+class SliderItemAdmin(ModelAdmin):
+    list_display = ('title', 'slider', 'order', 'is_active')
+    search_fields = ('title', 'slider__title')
+    ordering = ('slider', 'order')
+    list_per_page = 20
+    readonly_fields = ('created_at', 'updated_at')
+    list_filter = ('slider', 'is_active')
