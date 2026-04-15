@@ -287,6 +287,11 @@ UNFOLD = {
                         "icon": "article",
                         "link": f"/{ADMIN_URL}common/staticpage/",
                     },
+                    {
+                        "title": "Sliderlar",
+                        "icon": "view_carousel",
+                        "link": f"/{ADMIN_URL}common/slider/",
+                    },
                 ],
             },
             {

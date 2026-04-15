@@ -1,5 +1,5 @@
 from modeltranslation.translator import register, TranslationOptions
-from .models import History, StaticPage, Slider, SliderItem
+from .models import History, StaticPage
 
 @register(History)
 class HistoryTranslationOptions(TranslationOptions):
@@ -9,10 +9,3 @@ class HistoryTranslationOptions(TranslationOptions):
 class StaticPageTranslationOptions(TranslationOptions):
     fields = ('title', 'content')
 
-@register(Slider)
-class SliderTranslationOptions(TranslationOptions):
-    fields = ('title',)
-
-@register(SliderItem)
-class SliderItemTranslationOptions(TranslationOptions):
-    fields = ('title', 'description')

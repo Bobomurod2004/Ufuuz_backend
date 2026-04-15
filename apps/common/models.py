@@ -45,13 +45,28 @@ class Slider(BaseModel):
         ordering = ['order']
 
 class SliderItem(BaseModel):
-    slider = models.ForeignKey(Slider, on_delete=models.CASCADE, related_name='items')
+    slider = models.ForeignKey(
+        Slider,
+        on_delete=models.CASCADE,
+        related_name='items',
+        null=True,
+        blank=True,
+    )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='sliders/')
     link = models.URLField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if self.slider_id is None:
+            default_slider, _ = Slider.objects.get_or_create(
+                title='Asosiy Slider',
+                defaults={'is_active': True, 'order': 0},
+            )
+            self.slider = default_slider
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.slider.title} - {self.title}"
