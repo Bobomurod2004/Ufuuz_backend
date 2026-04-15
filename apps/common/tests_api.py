@@ -1,5 +1,7 @@
 from django.test import TestCase, Client
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from rest_framework import status
 from apps.common.models import History, StaticPage, Slider, SliderItem
 from apps.structure.models import Faculty, Department
@@ -65,6 +67,19 @@ class ApiTets(TestCase):
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(len(response.json()[0]['items']), 1)
         self.assertEqual(response.json()[0]['items'][0]['title'], 'Aktiv slide')
+
+    def test_media_url_is_served(self):
+        media_path = default_storage.save(
+            'sliders/test-media.txt',
+            ContentFile(b'hello media'),
+        )
+        try:
+            response = self.client.get(f'/media/{media_path}', secure=True)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(b''.join(response.streaming_content), b'hello media')
+        finally:
+            if default_storage.exists(media_path):
+                default_storage.delete(media_path)
 
 if __name__ == "__main__":
     pass
