@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -54,12 +55,34 @@ class SliderItem(BaseModel):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='sliders/')
-    link = models.URLField(blank=True, null=True)
+    image = models.ImageField(
+        upload_to='sliders/',
+        blank=True,
+        null=True,
+        help_text=(
+            "Rasm fayl yuklang. "
+            "Agar fayl bo'lmasa, pastdagi Image URL ni kiriting."
+        ),
+    )
+    link = models.URLField(
+        "Image URL",
+        blank=True,
+        null=True,
+        help_text="Tashqi rasm URL manzili (https://...).",
+    )
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
+    def clean(self):
+        super().clean()
+        if not self.image and not self.link:
+            raise ValidationError({
+                'image': "Rasm yoki Image URL kiritilishi shart.",
+                'link': "Rasm yoki Image URL kiritilishi shart.",
+            })
+
     def save(self, *args, **kwargs):
+        self.full_clean()
         if self.slider_id is None:
             default_slider, _ = Slider.objects.get_or_create(
                 title='Asosiy Slider',
