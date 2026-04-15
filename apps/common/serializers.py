@@ -40,10 +40,12 @@ class SliderItemSerializer(serializers.ModelSerializer):
     def get_image(self, obj):
         request = self.context.get('request')
         if obj.image:
-            image_url = obj.image.url
-            if request:
-                return request.build_absolute_uri(image_url)
-            return image_url
+            image_name = obj.image.name
+            if obj.image.storage.exists(image_name):
+                image_url = obj.image.url
+                if request:
+                    return request.build_absolute_uri(image_url)
+                return image_url
         return obj.link
 
     class Meta:
