@@ -13,8 +13,8 @@ run_manage_command() {
 }
 
 if [ "$(id -u)" = "0" ]; then
-    mkdir -p /app/media /app/staticfiles
-    chown -R "${APP_USER}:${APP_GROUP}" /app/media /app/staticfiles
+    mkdir -p /app/media /app/staticfiles /data
+    chown -R "${APP_USER}:${APP_GROUP}" /app/media /app/staticfiles /data
 fi
 
 if [ "${RUN_MIGRATIONS:-1}" = "1" ]; then

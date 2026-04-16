@@ -21,14 +21,16 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: ${DATABASE_URL:-sqlite:///db.sqlite3}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////data/db.sqlite3}
     ports:
       - "8000:8000"
     volumes:
+      - sqlite_data:/data
       - media_data:/app/media
       - static_data:/app/staticfiles
 
 volumes:
   postgres_data:
+  sqlite_data:
   media_data:
   static_data:
