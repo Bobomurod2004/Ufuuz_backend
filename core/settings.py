@@ -19,9 +19,7 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Initialize environ
-env = environ.Env(
-    DEBUG=(bool, False),
-)
+env = environ.Env()
 
 # Reading .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -32,8 +30,25 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='unsafe-dev-key-change-me')
 
+def _parse_bool_env(name: str, default: bool = False) -> bool:
+    raw_value = env(name, default=str(default))
+    if isinstance(raw_value, bool):
+        return raw_value
+
+    normalized = str(raw_value).strip().lower()
+    truthy_values = {'1', 'true', 't', 'yes', 'y', 'on'}
+    falsy_values = {'0', 'false', 'f', 'no', 'n', 'off'}
+
+    if normalized in truthy_values:
+        return True
+    if normalized in falsy_values:
+        return False
+    raise ImproperlyConfigured(
+        f"{name} must be a boolean value (true/false, 1/0, yes/no, on/off)."
+    )
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = _parse_bool_env('DEBUG', default=False)
 
 if not DEBUG and (
     not SECRET_KEY
@@ -50,6 +65,7 @@ if not ADMIN_URL.endswith('/'):
 ADMIN_URL = ADMIN_URL.lstrip('/')
 
 ENABLE_API_DOCS = env.bool('ENABLE_API_DOCS', default=DEBUG)
+SERVE_MEDIA_FILES = env.bool('SERVE_MEDIA_FILES', default=DEBUG)
 
 
 # Application definition
@@ -181,6 +197,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': env('DRF_THROTTLE_ANON_RATE', default='120/minute'),
+    },
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
@@ -200,6 +222,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API documentation for UFU website backend.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'AUTHENTICATION_WHITELIST': [],
     'COMPONENT_SPLIT_REQUEST': True,
 }
 

@@ -1,15 +1,16 @@
 services:
   db:
+    profiles: ["postgres"]
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ufu_db
-      POSTGRES_USER: ufu_user
-      POSTGRES_PASSWORD: change_me_strong_password
+      POSTGRES_DB: ${POSTGRES_DB:-ufu_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ufu_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_strong_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ufu_user -d ufu_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ufu_user} -d ${POSTGRES_DB:-ufu_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,10 +21,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgres://ufu_user:change_me_strong_password@db:5432/ufu_db
-    depends_on:
-      db:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///db.sqlite3}
     ports:
       - "8000:8000"
     volumes:

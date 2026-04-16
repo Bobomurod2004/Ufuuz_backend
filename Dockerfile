@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
+    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/requirements.txt
@@ -16,6 +17,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
 
 RUN addgroup --system app && adduser --system --ingroup app app \
+    && mkdir -p /app/media /app/staticfiles \
     && chown -R app:app /app
 
 RUN chmod +x /app/entrypoint.sh

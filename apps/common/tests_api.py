@@ -3,12 +3,12 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from rest_framework import status
-from apps.common.models import History, StaticPage, Slider, SliderItem
-from apps.structure.models import Faculty, Department
+from apps.common.models import History, Slider, SliderItem
+from apps.structure.models import Faculty
 from apps.news.models import Category, News
 from apps.communications.models import Contact
 
-class ApiTets(TestCase):
+class ApiTests(TestCase):
     def setUp(self):
         self.client = Client()
         # Seed basic data
@@ -59,7 +59,6 @@ class ApiTets(TestCase):
         for url in endpoints:
             response = self.client.get(url, secure=True)
             self.assertEqual(response.status_code, status.HTTP_200_OK, f"Failed at {url}")
-            print(f"✓ Checked {url} - Status 200")
 
     def test_slider_endpoint_returns_only_active_items(self):
         response = self.client.get('/api/v1/common/sliders/', secure=True)
@@ -75,11 +74,11 @@ class ApiTets(TestCase):
         )
         try:
             response = self.client.get(f'/media/{media_path}', secure=True)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(b''.join(response.streaming_content), b'hello media')
+            if settings.SERVE_MEDIA_FILES:
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual(b''.join(response.streaming_content), b'hello media')
+            else:
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         finally:
             if default_storage.exists(media_path):
                 default_storage.delete(media_path)
-
-if __name__ == "__main__":
-    pass
