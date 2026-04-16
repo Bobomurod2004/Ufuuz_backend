@@ -8,7 +8,7 @@ from .serializers import ContactSerializer, SocialLinkSerializer
 )
 @extend_schema(tags=['Communications'])
 class ContactViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.all().order_by('id')
     serializer_class = ContactSerializer
 
 @extend_schema_view(
@@ -16,5 +16,5 @@ class ContactViewSet(viewsets.ReadOnlyModelViewSet):
 )
 @extend_schema(tags=['Communications'])
 class SocialLinkViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = SocialLink.objects.all()
+    queryset = SocialLink.objects.all().order_by('id')
     serializer_class = SocialLinkSerializer

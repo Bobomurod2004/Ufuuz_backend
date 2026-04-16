@@ -63,9 +63,15 @@ class ApiTests(TestCase):
     def test_slider_endpoint_returns_only_active_items(self):
         response = self.client.get('/api/v1/common/sliders/', secure=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), 1)
-        self.assertEqual(len(response.json()[0]['items']), 1)
-        self.assertEqual(response.json()[0]['items'][0]['title'], 'Aktiv slide')
+        payload = response.json()
+        self.assertIn('results', payload)
+        self.assertEqual(payload['count'], 1)
+        self.assertEqual(len(payload['results']), 1)
+        self.assertEqual(len(payload['results'][0]['items']), 1)
+        self.assertEqual(
+            payload['results'][0]['items'][0]['title'],
+            'Aktiv slide',
+        )
 
     def test_media_url_is_served(self):
         media_path = default_storage.save(

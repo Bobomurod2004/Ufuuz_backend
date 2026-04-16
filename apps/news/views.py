@@ -8,7 +8,7 @@ from .serializers import CategorySerializer, NewsSerializer
 )
 @extend_schema(tags=['News'])
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
 
 @extend_schema(tags=['News'])

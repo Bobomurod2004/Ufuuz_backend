@@ -8,7 +8,7 @@ from .serializers import FacultySerializer, DepartmentSerializer
 )
 @extend_schema(tags=['Structure'])
 class FacultyViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Faculty.objects.prefetch_related('departments')
+    queryset = Faculty.objects.prefetch_related('departments').order_by('id')
     serializer_class = FacultySerializer
 
 @extend_schema_view(
@@ -16,5 +16,5 @@ class FacultyViewSet(viewsets.ReadOnlyModelViewSet):
 )
 @extend_schema(tags=['Structure'])
 class DepartmentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Department.objects.select_related('faculty')
+    queryset = Department.objects.select_related('faculty').order_by('id')
     serializer_class = DepartmentSerializer

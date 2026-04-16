@@ -9,12 +9,12 @@ from .serializers import HistorySerializer, StaticPageSerializer, SliderSerializ
 )
 @extend_schema(tags=['Common'])
 class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = History.objects.all()
+    queryset = History.objects.all().order_by('id')
     serializer_class = HistorySerializer
 
 @extend_schema(tags=['Common'])
 class StaticPageViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = StaticPage.objects.all()
+    queryset = StaticPage.objects.all().order_by('id')
     serializer_class = StaticPageSerializer
     lookup_field = 'slug'
 
@@ -23,7 +23,9 @@ class StaticPageViewSet(viewsets.ReadOnlyModelViewSet):
 )
 @extend_schema(tags=['Common'])
 class SliderViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Slider.objects.filter(is_active=True).prefetch_related(
+    queryset = Slider.objects.filter(
+        is_active=True
+    ).order_by('order', 'id').prefetch_related(
         Prefetch(
             'items',
             queryset=SliderItem.objects.filter(is_active=True).order_by('order'),
