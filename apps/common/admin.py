@@ -16,10 +16,13 @@ class HistoryAdmin(
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'created_at')
-    search_fields = ('title', 'title_uz', 'title_en', 'title_fr')
     ordering = ('-created_at',)
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
+
+    def get_search_fields(self, request):
+        translated_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
+        return ('title',) + translated_fields
 
 
 @admin.register(StaticPage)
@@ -29,11 +32,14 @@ class StaticPageAdmin(
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'slug')
-    search_fields = ('title', 'slug', 'title_uz', 'title_en', 'title_fr')
     ordering = ('title',)
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
     prepopulated_fields = {"slug": ("title",)}
+
+    def get_search_fields(self, request):
+        translated_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
+        return ('title', 'slug') + translated_fields
 
 
 class SliderItemInline(StackedInline):

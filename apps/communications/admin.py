@@ -7,10 +7,13 @@ from .models import Contact, SocialLink
 @admin.register(Contact)
 class ContactAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
     list_display = ('address', 'phone', 'email')
-    search_fields = ('address', 'phone', 'email', 'address_uz', 'address_en', 'address_fr')
     ordering = ('-created_at',)
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
+
+    def get_search_fields(self, request):
+        translated_fields = tuple(f'address_{suffix}' for suffix in self.translation_suffixes)
+        return ('address', 'phone', 'email') + translated_fields
 
 @admin.register(SocialLink)
 class SocialLinkAdmin(ModelAdmin):

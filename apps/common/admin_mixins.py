@@ -1,5 +1,10 @@
+from django.conf import settings
+
+
 class TranslationSafeAdminMixin:
-    translation_suffixes = ('uz', 'en', 'fr')
+    @property
+    def translation_suffixes(self):
+        return tuple(code for code, _ in settings.LANGUAGES)
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj=obj, change=change, **kwargs)

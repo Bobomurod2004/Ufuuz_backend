@@ -86,3 +86,13 @@ class SliderSerializer(serializers.ModelSerializer):
             'updated_at',
         )
         read_only_fields = ('id', 'created_at', 'updated_at')
+
+
+class LanguageOptionSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    name = serializers.CharField()
+
+
+class LanguagesResponseSerializer(serializers.Serializer):
+    default_language = serializers.CharField()
+    languages = LanguageOptionSerializer(many=True)

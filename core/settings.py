@@ -170,7 +170,7 @@ LANGUAGES = (
 )
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
-MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'en', 'fr')
+MODELTRANSLATION_FALLBACK_LANGUAGES = tuple(code for code, _ in LANGUAGES)
 
 
 # Static files (CSS, JavaScript, Images)
