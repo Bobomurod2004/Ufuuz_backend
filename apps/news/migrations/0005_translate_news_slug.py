@@ -5,13 +5,28 @@ from django.utils.text import slugify
 TRANSLATED_SLUG_FIELDS = ('slug_uz', 'slug_en', 'slug_fr')
 
 
+def _normalize_slug(base_slug, max_length, suffix=None):
+    if not base_slug:
+        base_slug = 'news'
+
+    if suffix is None:
+        return base_slug[:max_length]
+
+    suffix_text = f'-{suffix}'
+    allowed = max_length - len(suffix_text)
+    if allowed < 1:
+        return suffix_text[-max_length:]
+    return f"{base_slug[:allowed]}{suffix_text}"
+
+
 def _build_unique_slug(News, instance, field_name, source_value):
+    max_length = News._meta.get_field(field_name).max_length or 50
     base_slug = slugify(source_value) or 'news'
-    candidate = base_slug
+    candidate = _normalize_slug(base_slug, max_length)
     suffix = 2
 
     while News.objects.filter(**{field_name: candidate}).exclude(pk=instance.pk).exists():
-        candidate = f'{base_slug}-{suffix}'
+        candidate = _normalize_slug(base_slug, max_length, suffix=suffix)
         suffix += 1
 
     return candidate
@@ -21,7 +36,9 @@ def populate_translated_news_slugs(apps, schema_editor):
     News = apps.get_model('news', 'News')
 
     for news in News.objects.all().order_by('pk'):
-        existing_slug = news.slug
+        existing_slug = (news.slug or '')
+        if existing_slug:
+            existing_slug = _build_unique_slug(News, news, 'slug', existing_slug)
         if not news.slug_uz:
             source_title = news.title_uz or news.title or existing_slug or 'news'
             news.slug_uz = existing_slug or _build_unique_slug(News, news, 'slug_uz', source_title)
@@ -52,6 +69,8 @@ def populate_translated_news_slugs(apps, schema_editor):
                 'slug',
                 news.title_uz or news.title or 'news',
             )
+        else:
+            news.slug = _build_unique_slug(News, news, 'slug', news.slug)
 
         news.save(update_fields=('slug',) + TRANSLATED_SLUG_FIELDS)
 

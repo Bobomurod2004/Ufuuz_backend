@@ -53,12 +53,24 @@ class News(BaseModel):
         return ''
 
     def _generate_unique_slug(self, value: str, field_name: str) -> str:
+        max_length = self._meta.get_field(field_name).max_length or 50
         base_slug = slugify(value) or 'news'
-        candidate = base_slug
+
+        def normalize_slug(suffix: int | None = None) -> str:
+            if suffix is None:
+                return base_slug[:max_length]
+
+            suffix_text = f'-{suffix}'
+            allowed = max_length - len(suffix_text)
+            if allowed < 1:
+                return suffix_text[-max_length:]
+            return f"{base_slug[:allowed]}{suffix_text}"
+
+        candidate = normalize_slug()
         suffix = 2
 
         while News.objects.filter(**{field_name: candidate}).exclude(pk=self.pk).exists():
-            candidate = f'{base_slug}-{suffix}'
+            candidate = normalize_slug(suffix)
             suffix += 1
 
         return candidate
