@@ -24,6 +24,24 @@ class NewsModelTests(TestCase):
         self.assertEqual(first_news.slug, 'campus-update')
         self.assertEqual(second_news.slug, 'campus-update-2')
 
+    def test_slug_is_generated_for_each_language(self):
+        category = Category.objects.create(title='General')
+
+        news = News.objects.create(
+            category=category,
+            title_uz='Talaba hayoti',
+            title_en='Student Life',
+            title_fr='Vie etudiante',
+            content_uz='Matn',
+            content_en='Content',
+            content_fr='Contenu',
+        )
+
+        self.assertEqual(news.slug_uz, 'talaba-hayoti')
+        self.assertEqual(news.slug_en, 'student-life')
+        self.assertEqual(news.slug_fr, 'vie-etudiante')
+        self.assertEqual(news.slug, 'talaba-hayoti')
+
     def test_news_video_requires_file_or_url(self):
         category = Category.objects.create(title='General')
         news = News.objects.create(
@@ -112,3 +130,28 @@ class NewsApiTests(TestCase):
         payload = response.json()
         self.assertEqual(payload['slug'], 'campus-update')
         self.assertIn('content', payload)
+
+    def test_news_detail_by_slug_uses_requested_language_slug(self):
+        localized_news = News.objects.create(
+            category=self.category,
+            title_uz='Talaba hayoti',
+            title_en='Student Life',
+            title_fr='Vie etudiante',
+            summary_uz='Uz summary',
+            summary_en='En summary',
+            summary_fr='Fr summary',
+            content_uz='Uz content',
+            content_en='En content',
+            content_fr='Fr content',
+            is_published=True,
+        )
+
+        en_response = self.client.get('/api/v1/news/news/student-life/?lang=en', secure=True)
+        self.assertEqual(en_response.status_code, 200)
+        self.assertEqual(en_response.json()['id'], localized_news.id)
+        self.assertEqual(en_response.json()['slug'], 'student-life')
+
+        fr_response = self.client.get('/api/v1/news/news/vie-etudiante/?lang=fr', secure=True)
+        self.assertEqual(fr_response.status_code, 200)
+        self.assertEqual(fr_response.json()['id'], localized_news.id)
+        self.assertEqual(fr_response.json()['slug'], 'vie-etudiante')

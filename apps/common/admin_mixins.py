@@ -2,6 +2,8 @@ from django.conf import settings
 
 
 class TranslationSafeAdminMixin:
+    translation_autofill_excluded_base_fields = ()
+
     @property
     def translation_suffixes(self):
         return tuple(code for code, _ in settings.LANGUAGES)
@@ -19,6 +21,8 @@ class TranslationSafeAdminMixin:
                 continue
 
             base_field_name = self._base_field_name(field_name)
+            if self._is_autofill_excluded_field(base_field_name):
+                continue
             translated_value = form.cleaned_data.get(field_name)
             base_value = form.cleaned_data.get(base_field_name)
 
@@ -26,6 +30,9 @@ class TranslationSafeAdminMixin:
                 setattr(obj, field_name, base_value)
 
         super().save_model(request, obj, form, change)
+
+    def _is_autofill_excluded_field(self, base_field_name: str) -> bool:
+        return base_field_name in self.translation_autofill_excluded_base_fields
 
     def _is_translation_field(self, field_name: str) -> bool:
         return any(field_name.endswith(f'_{suffix}') for suffix in self.translation_suffixes)

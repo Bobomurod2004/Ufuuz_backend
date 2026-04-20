@@ -7,7 +7,7 @@ class CategoryTranslationOptions(TranslationOptions):
 
 @register(News)
 class NewsTranslationOptions(TranslationOptions):
-    fields = ('title', 'summary', 'content')
+    fields = ('title', 'slug', 'summary', 'content')
 
 
 @register(NewsImage)

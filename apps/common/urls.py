@@ -2,8 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 from .views import (
     HistoryViewSet,
+    SliderCategoryViewSet,
     SliderItemViewSet,
-    SliderViewSet,
     StaticPageViewSet,
     SupportedLanguageAPIView,
 )
@@ -11,7 +11,7 @@ from .views import (
 router = SimpleRouter()
 router.register('history', HistoryViewSet)
 router.register('pages', StaticPageViewSet)
-router.register('sliders', SliderViewSet)
+router.register('slider-categories', SliderCategoryViewSet)
 router.register('slider-items', SliderItemViewSet)
 
 urlpatterns = [

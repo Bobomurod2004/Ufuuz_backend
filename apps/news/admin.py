@@ -26,18 +26,20 @@ class CategoryAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmi
         translated_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
         return ('title',) + translated_fields
 
+
 @admin.register(News)
 class NewsAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
-    list_display = ('title', 'category', 'published_at', 'is_published', 'created_at')
+    list_display = ('id', 'title', 'category', 'published_at', 'is_published', 'created_at')
     list_filter = ('category', 'is_published', 'published_at')
     ordering = ('-published_at', '-created_at')
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
     date_hierarchy = 'published_at'
     inlines = [NewsImageInline, NewsVideoInline]
-    prepopulated_fields = {"slug": ("title",)}
+    translation_autofill_excluded_base_fields = ('slug',)
 
     def get_search_fields(self, request):
+        slug_fields = tuple(f'slug_{suffix}' for suffix in self.translation_suffixes)
         title_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
         summary_fields = tuple(f'summary_{suffix}' for suffix in self.translation_suffixes)
-        return ('title', 'slug', 'summary') + title_fields + summary_fields
+        return ('title', 'slug', 'summary') + slug_fields + title_fields + summary_fields

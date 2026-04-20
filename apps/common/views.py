@@ -1,25 +1,29 @@
-from django.shortcuts import get_object_or_404
 from django.conf import settings
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema, extend_schema_view
-from django.db.models import Prefetch
+
 from apps.common.language import (
     LanguageAwareReadOnlyModelViewSet,
     build_language_query_parameter,
     get_default_language,
 )
-from .models import History, StaticPage, Slider, SliderItem
+
+from .models import History, SliderCategory, SliderItem, StaticPage
 from .serializers import (
     HistorySerializer,
     LanguagesResponseSerializer,
+    SliderCategorySerializer,
     SliderItemSerializer,
-    SliderSerializer,
     StaticPageSerializer,
 )
 
+
 LANGUAGE_QUERY_PARAMETER = build_language_query_parameter()
+
 
 @extend_schema_view(
     list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
@@ -29,6 +33,7 @@ LANGUAGE_QUERY_PARAMETER = build_language_query_parameter()
 class HistoryViewSet(LanguageAwareReadOnlyModelViewSet):
     queryset = History.objects.all().order_by('id')
     serializer_class = HistorySerializer
+
 
 @extend_schema_view(
     list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
@@ -43,34 +48,50 @@ class StaticPageViewSet(LanguageAwareReadOnlyModelViewSet):
     @extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER])
     @action(detail=False, methods=['get'], url_path=r'by-id/(?P<pk>\d+)')
     def by_id(self, request, pk=None):
-        obj = get_object_or_404(self.filter_queryset(self.get_queryset()), pk=pk)
+        obj = get_object_or_404(
+            self.filter_queryset(self.get_queryset()),
+            pk=pk,
+        )
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
-@extend_schema_view(
-    list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
-    retrieve=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
-)
-@extend_schema(tags=['Common'])
-class SliderViewSet(LanguageAwareReadOnlyModelViewSet):
-    queryset = Slider.objects.filter(
-        is_active=True
-    ).order_by('order', 'id').prefetch_related(
-        Prefetch(
-            'items',
-            queryset=SliderItem.objects.filter(is_active=True).order_by('order'),
-            to_attr='active_items',
-        )
-    )
-    serializer_class = SliderSerializer
+
+class SliderCategoryViewSet(LanguageAwareReadOnlyModelViewSet):
+    queryset = SliderCategory.objects.filter(is_active=True).order_by('order')
+    serializer_class = SliderCategorySerializer
+
 
 @extend_schema_view(
-    list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
-    retrieve=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
+    list=extend_schema(
+        summary="Slider items ro'yxatini olish",
+        description='Barcha faol slider itemlarini kategoriya bo\'ylab tartiblangan holda qaytaradi',
+        parameters=[LANGUAGE_QUERY_PARAMETER],
+        tags=['Slider'],
+    ),
+    retrieve=extend_schema(
+        summary='Slider item detallari',
+        description='Muayyan slider item\'ning to\'lik ma\'lumotlarini qaytaradi',
+        parameters=[LANGUAGE_QUERY_PARAMETER],
+        tags=['Slider'],
+    ),
 )
-@extend_schema(tags=['Common'])
 class SliderItemViewSet(LanguageAwareReadOnlyModelViewSet):
-    queryset = SliderItem.objects.filter(is_active=True, slider__is_active=True).order_by('order')
+    """
+    Slider Item ViewSet
+    
+    Slider items - saytning asosiy slider elementlari
+    Har bir item: title, description, image, video, category
+    
+    Endpoints:
+    - GET /api/v1/common/slider-items/ - barcha faol itemlar
+    - GET /api/v1/common/slider-items/{id}/ - bir item detallari
+    
+    Query parameters:
+    - lang=uz|en|fr - til belgilash (default: uz)
+    """
+    queryset = SliderItem.objects.filter(
+        is_active=True,
+    ).select_related('category').order_by('order')
     serializer_class = SliderItemSerializer
 
 
