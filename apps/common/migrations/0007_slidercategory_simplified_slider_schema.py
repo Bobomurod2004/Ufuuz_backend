@@ -9,27 +9,44 @@ def create_slider_category_table_if_missing(apps, schema_editor):
     table_name = 'common_slidercategory'
     if table_name in schema_editor.connection.introspection.table_names():
         return
-    
+
+    vendor = schema_editor.connection.vendor
     cursor = schema_editor.connection.cursor()
-    cursor.execute('''
-        CREATE TABLE common_slidercategory (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL,
-            name VARCHAR(120) NOT NULL,
-            name_uz VARCHAR(120),
-            name_en VARCHAR(120),
-            name_fr VARCHAR(120),
-            is_active BOOLEAN NOT NULL DEFAULT 1,
-            "order" INTEGER NOT NULL DEFAULT 0
-        )
-    ''')
+    if vendor == 'postgresql':
+        cursor.execute('''
+            CREATE TABLE common_slidercategory (
+                id BIGSERIAL PRIMARY KEY,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                name VARCHAR(120) NOT NULL,
+                name_uz VARCHAR(120),
+                name_en VARCHAR(120),
+                name_fr VARCHAR(120),
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                "order" INTEGER NOT NULL DEFAULT 0
+            )
+        ''')
+    else:
+        cursor.execute('''
+            CREATE TABLE common_slidercategory (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                name VARCHAR(120) NOT NULL,
+                name_uz VARCHAR(120),
+                name_en VARCHAR(120),
+                name_fr VARCHAR(120),
+                is_active BOOLEAN NOT NULL DEFAULT 1,
+                "order" INTEGER NOT NULL DEFAULT 0
+            )
+        ''')
 
 
 def add_slideritem_category_column_if_missing(apps, schema_editor):
     """Conditionally add category_ref_id column to SliderItem"""
     cursor = schema_editor.connection.cursor()
     table_name = 'common_slideritem'
+    vendor = schema_editor.connection.vendor
     
     columns = {
         column_info.name
@@ -44,12 +61,19 @@ def add_slideritem_category_column_if_missing(apps, schema_editor):
     #  Add the category_ref_id FK column if it doesn't exist
     # (SQLite will automatically allow its existence even if old category exists)
     if 'category_ref_id' not in columns:
-        # Add nullable FK column
-        cursor.execute(f'''
-            ALTER TABLE {table_name}
-            ADD COLUMN category_ref_id INTEGER NULL
-                REFERENCES common_slidercategory(id)
-        ''')
+        if vendor == 'postgresql':
+            cursor.execute(f'''
+                ALTER TABLE {table_name}
+                ADD COLUMN category_ref_id BIGINT NULL
+                    REFERENCES common_slidercategory(id)
+            ''')
+        else:
+            # Add nullable FK column
+            cursor.execute(f'''
+                ALTER TABLE {table_name}
+                ADD COLUMN category_ref_id INTEGER NULL
+                    REFERENCES common_slidercategory(id)
+            ''')
 
 
 def create_slider_media_table_if_missing(apps, schema_editor):
@@ -57,20 +81,35 @@ def create_slider_media_table_if_missing(apps, schema_editor):
     table_name = 'common_slidermedia'
     if table_name in schema_editor.connection.introspection.table_names():
         return
-    
+
+    vendor = schema_editor.connection.vendor
     cursor = schema_editor.connection.cursor()
-    cursor.execute('''
-        CREATE TABLE common_slidermedia (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            created_at DATETIME NOT NULL,
-            updated_at DATETIME NOT NULL,
-            slider_item_id INTEGER NOT NULL REFERENCES common_slideritem(id),
-            media_type VARCHAR(16) NOT NULL DEFAULT 'image',
-            file VARCHAR(100) NOT NULL,
-            is_active BOOLEAN NOT NULL DEFAULT 1,
-            "order" INTEGER NOT NULL DEFAULT 0
-        )
-    ''')
+    if vendor == 'postgresql':
+        cursor.execute('''
+            CREATE TABLE common_slidermedia (
+                id BIGSERIAL PRIMARY KEY,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                slider_item_id BIGINT NOT NULL REFERENCES common_slideritem(id),
+                media_type VARCHAR(16) NOT NULL DEFAULT 'image',
+                file VARCHAR(100) NOT NULL,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                "order" INTEGER NOT NULL DEFAULT 0
+            )
+        ''')
+    else:
+        cursor.execute('''
+            CREATE TABLE common_slidermedia (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                slider_item_id INTEGER NOT NULL REFERENCES common_slideritem(id),
+                media_type VARCHAR(16) NOT NULL DEFAULT 'image',
+                file VARCHAR(100) NOT NULL,
+                is_active BOOLEAN NOT NULL DEFAULT 1,
+                "order" INTEGER NOT NULL DEFAULT 0
+            )
+        ''')
 
 
 class Migration(migrations.Migration):

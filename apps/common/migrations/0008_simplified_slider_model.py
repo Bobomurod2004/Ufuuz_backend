@@ -8,7 +8,29 @@ def fix_slider_model_and_schema(apps, schema_editor):
     cursor = schema_editor.connection.cursor()
     table_name = 'common_slideritem'
     connection = schema_editor.connection
-    
+
+    # PostgreSQL path: perform targeted ALTERs instead of SQLite table recreation.
+    if connection.vendor == 'postgresql':
+        columns = {
+            column_info.name
+            for column_info in connection.introspection.get_table_description(
+                cursor,
+                table_name,
+            )
+        }
+
+        if 'video' not in columns:
+            cursor.execute(
+                f'ALTER TABLE {table_name} ADD COLUMN video VARCHAR(100) NULL'
+            )
+
+        if 'category' in columns:
+            cursor.execute(
+                f'ALTER TABLE {table_name} ALTER COLUMN category DROP NOT NULL'
+            )
+
+        return
+
     # Get list of columns
     cursor.execute(f'PRAGMA table_info({table_name})')
     table_info = cursor.fetchall()
