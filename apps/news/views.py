@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from apps.common.language import (
     LanguageAwareReadOnlyModelViewSet,
     build_language_query_parameter,
@@ -15,6 +16,13 @@ from .serializers import (
 )
 
 LANGUAGE_QUERY_PARAMETER = build_language_query_parameter()
+NEWS_CATEGORY_QUERY_PARAMETER = OpenApiParameter(
+    name='category',
+    type=OpenApiTypes.INT,
+    location=OpenApiParameter.QUERY,
+    required=False,
+    description='Yangiliklarni kategoriya ID bo‘yicha filterlaydi.',
+)
 
 @extend_schema_view(
     list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
@@ -26,7 +34,12 @@ class CategoryViewSet(LanguageAwareReadOnlyModelViewSet):
     serializer_class = CategorySerializer
 
 @extend_schema_view(
-    list=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
+    list=extend_schema(
+        parameters=[
+            LANGUAGE_QUERY_PARAMETER,
+            NEWS_CATEGORY_QUERY_PARAMETER,
+        ],
+    ),
     retrieve=extend_schema(parameters=[LANGUAGE_QUERY_PARAMETER]),
 )
 @extend_schema(tags=['News'])
@@ -36,6 +49,17 @@ class NewsViewSet(LanguageAwareReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
+        if self.action == 'list':
+            category_id = self.request.query_params.get('category')
+            if category_id:
+                normalized_category_id = category_id.strip()
+                if not normalized_category_id.isdigit():
+                    return queryset.none()
+                queryset = queryset.filter(
+                    category_id=int(normalized_category_id),
+                )
+
         if self.action in {'retrieve', 'by_id'}:
             return queryset.prefetch_related(
                 Prefetch(

@@ -18,7 +18,7 @@ class NewsVideoInline(admin.TabularInline):
 
 @admin.register(Category)
 class CategoryAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
-    list_display = ('title',)
+    list_display = ('id', 'title')
     ordering = ('title',)
     list_per_page = 20
 

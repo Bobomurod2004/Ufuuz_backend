@@ -63,6 +63,11 @@ class NewsApiTests(TestCase):
             title_en='News',
             title_fr='Actualite',
         )
+        self.other_category = Category.objects.create(
+            title_uz='Tadbirlar',
+            title_en='Events',
+            title_fr='Evenements',
+        )
         self.news = News.objects.create(
             category=self.category,
             slug='campus-update',
@@ -76,6 +81,20 @@ class NewsApiTests(TestCase):
             content_en='First paragraph\n\nSecond paragraph',
             content_fr='Premier paragraphe\n\nDeuxieme paragraphe',
             published_at=self.published_at,
+            is_published=True,
+        )
+        self.other_news = News.objects.create(
+            category=self.other_category,
+            title_uz='Laboratoriya ochilishi',
+            title_en='Laboratory Opening',
+            title_fr='Ouverture du laboratoire',
+            summary_uz='Ikkinchi yangilik',
+            summary_en='Second news',
+            summary_fr='Deuxieme actualite',
+            content_uz='Ikkinchi kontent',
+            content_en='Second content',
+            content_fr='Deuxieme contenu',
+            published_at=timezone.make_aware(datetime(2026, 4, 14, 8, 0, 0)),
             is_published=True,
         )
         NewsImage.objects.create(
@@ -107,6 +126,29 @@ class NewsApiTests(TestCase):
         self.assertEqual(first_item['short_description'], 'Short summary')
         self.assertTrue(first_item['published_at'].startswith('2026-04-15T10:30:00'))
         self.assertNotIn('content', first_item)
+
+    def test_news_list_can_be_filtered_by_category(self):
+        response = self.client.get(
+            f'/api/v1/news/news/?lang=en&category={self.category.id}',
+            secure=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Language'], 'en')
+
+        payload = response.json()
+        self.assertEqual(payload['language'], 'en')
+        self.assertEqual(payload['count'], 1)
+        self.assertEqual(len(payload['results']), 1)
+        self.assertEqual(payload['results'][0]['id'], self.news.id)
+        self.assertEqual(payload['results'][0]['category'], self.category.id)
+
+    def test_news_list_with_invalid_category_filter_returns_empty(self):
+        response = self.client.get('/api/v1/news/news/?lang=en&category=abc', secure=True)
+        self.assertEqual(response.status_code, 200)
+
+        payload = response.json()
+        self.assertEqual(payload['count'], 0)
+        self.assertEqual(payload['results'], [])
 
     def test_news_detail_by_slug_returns_full_content_media_and_paragraphs(self):
         response = self.client.get('/api/v1/news/news/campus-update/?lang=en', secure=True)
