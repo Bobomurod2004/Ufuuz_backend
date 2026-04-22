@@ -42,13 +42,20 @@ class StaticPageAdmin(
     ordering = ('title',)
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
-    prepopulated_fields = {"slug": ("title",)}
 
     def get_search_fields(self, request):
-        translated_fields = tuple(
+        translated_title_fields = tuple(
             f'title_{suffix}' for suffix in self.translation_suffixes
         )
-        return ('title', 'slug') + translated_fields
+        translated_slug_fields = tuple(
+            f'slug_{suffix}' for suffix in self.translation_suffixes
+        )
+        return (
+            'title',
+            'slug',
+            *translated_title_fields,
+            *translated_slug_fields,
+        )
 
 
 class SliderItemInline(StackedInline):

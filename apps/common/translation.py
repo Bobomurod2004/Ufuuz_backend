@@ -10,7 +10,7 @@ class HistoryTranslationOptions(TranslationOptions):
 
 @register(StaticPage)
 class StaticPageTranslationOptions(TranslationOptions):
-    fields = ('title', 'content')
+    fields = ('title', 'slug', 'content')
 
 
 @register(SliderItem)

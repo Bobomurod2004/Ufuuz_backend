@@ -25,9 +25,11 @@ class ApiTests(TestCase):
         self.static_page = StaticPage.objects.create(
             title_uz="Sahifa",
             title_en="Page",
+            title_fr="Page francaise",
             slug="about-ufu",
             content_uz="Sahifa matni",
             content_en="Page content",
+            content_fr="Contenu de la page",
         )
         self.faculty = Faculty.objects.create(
             title_uz="Test Faculty",
@@ -247,7 +249,7 @@ class ApiTests(TestCase):
         )
         self.assertEqual(page_response.status_code, status.HTTP_200_OK)
         self.assertEqual(page_response['Content-Language'], 'en')
-        self.assertEqual(page_response.json()['slug'], 'about-ufu')
+        self.assertEqual(page_response.json()['slug'], 'page')
 
         news_response = self.client.get(
             f'/api/v1/news/news/by-id/{self.news.id}/?lang=en',
@@ -256,8 +258,25 @@ class ApiTests(TestCase):
         self.assertEqual(news_response.status_code, status.HTTP_200_OK)
         self.assertEqual(news_response['Content-Language'], 'en')
         payload = news_response.json()
-        self.assertEqual(payload['slug'], 'test-news')
+        self.assertEqual(payload['slug'], 'test-news-en')
         self.assertIn('content', payload)
+
+    def test_static_page_detail_uses_language_specific_slugs(self):
+        en_response = self.client.get(
+            '/api/v1/common/pages/page/?lang=en',
+            secure=True,
+        )
+        self.assertEqual(en_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(en_response.json()['id'], self.static_page.id)
+        self.assertEqual(en_response.json()['slug'], 'page')
+
+        fr_response = self.client.get(
+            '/api/v1/common/pages/page-francaise/?lang=fr',
+            secure=True,
+        )
+        self.assertEqual(fr_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(fr_response.json()['id'], self.static_page.id)
+        self.assertEqual(fr_response.json()['slug'], 'page-francaise')
 
     def test_supported_languages_endpoint_returns_language_list(self):
         response = self.client.get('/api/v1/common/languages/', secure=True)
