@@ -3,10 +3,19 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls.i18n import i18n_patterns
+from django.shortcuts import redirect
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
+
+def home_view(request):
+    if settings.ENABLE_API_DOCS:
+        return redirect('/api/docs/')
+    return redirect('/api/v1/')
+
+
 urlpatterns = [
+    path('', home_view),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
