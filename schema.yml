@@ -1,0 +1,1501 @@
+openapi: 3.0.3
+info:
+  title: Uzbek-French University API
+  version: 1.0.0
+  description: API documentation for UFU website backend.
+paths:
+  /api/v1/common/history/:
+    get:
+      operationId: v1_common_history_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Common
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoryList'
+          description: ''
+  /api/v1/common/history/{id}/:
+    get:
+      operationId: v1_common_history_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Universitet tarixi.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Common
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/History'
+          description: ''
+  /api/v1/common/languages/:
+    get:
+      operationId: v1_common_languages_retrieve
+      tags:
+      - Common
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LanguagesResponse'
+          description: ''
+  /api/v1/common/pages/:
+    get:
+      operationId: v1_common_pages_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Common
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStaticPageList'
+          description: ''
+  /api/v1/common/pages/{slug}/:
+    get:
+      operationId: v1_common_pages_retrieve
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - Common
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaticPage'
+          description: ''
+  /api/v1/common/pages/by-id/{id}/:
+    get:
+      operationId: v1_common_pages_by_id_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Common
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaticPage'
+          description: ''
+  /api/v1/common/slider-categories/:
+    get:
+      operationId: v1_common_slider_categories_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSliderCategoryList'
+          description: ''
+  /api/v1/common/slider-categories/{id}/:
+    get:
+      operationId: v1_common_slider_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Slider kategoriyasi.
+        required: true
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SliderCategory'
+          description: ''
+  /api/v1/common/slider-items/:
+    get:
+      operationId: v1_common_slider_items_list
+      description: Barcha faol slider itemlarini kategoriya bo'ylab tartiblangan holda
+        qaytaradi
+      summary: Slider items ro'yxatini olish
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Slider
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSliderItemList'
+          description: ''
+  /api/v1/common/slider-items/{id}/:
+    get:
+      operationId: v1_common_slider_items_retrieve
+      description: Muayyan slider item'ning to'lik ma'lumotlarini qaytaradi
+      summary: Slider item detallari
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Slider elementi.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Slider
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SliderItem'
+          description: ''
+  /api/v1/communications/contact/:
+    get:
+      operationId: v1_communications_contact_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Communications
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContactList'
+          description: ''
+  /api/v1/communications/contact/{id}/:
+    get:
+      operationId: v1_communications_contact_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kontakt ma'lumoti.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Communications
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+          description: ''
+  /api/v1/communications/social-links/:
+    get:
+      operationId: v1_communications_social_links_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Communications
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSocialLinkList'
+          description: ''
+  /api/v1/communications/social-links/{id}/:
+    get:
+      operationId: v1_communications_social_links_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Ijtimoiy tarmoq.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Communications
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialLink'
+          description: ''
+  /api/v1/news/categories/:
+    get:
+      operationId: v1_news_categories_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - News
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+  /api/v1/news/categories/{id}/:
+    get:
+      operationId: v1_news_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Yangilik kategoriyasi.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - News
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/news/news/:
+    get:
+      operationId: v1_news_news_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+        description: Yangiliklarni kategoriya ID bo‘yicha filterlaydi.
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - News
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNewsListList'
+          description: ''
+  /api/v1/news/news/{slug}/:
+    get:
+      operationId: v1_news_news_retrieve
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - News
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsDetail'
+          description: ''
+  /api/v1/news/news/by-id/{id}/:
+    get:
+      operationId: v1_news_news_by_id_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - News
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewsList'
+          description: ''
+  /api/v1/structure/departments/:
+    get:
+      operationId: v1_structure_departments_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Structure
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartmentList'
+          description: ''
+  /api/v1/structure/departments/{id}/:
+    get:
+      operationId: v1_structure_departments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Kafedra.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Structure
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/v1/structure/faculties/:
+    get:
+      operationId: v1_structure_faculties_list
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Structure
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFacultyList'
+          description: ''
+  /api/v1/structure/faculties/{id}/:
+    get:
+      operationId: v1_structure_faculties_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Fakultet.
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+          - uz
+        description: 'Javob tili. Agar yuborilsa `Accept-Language`dan ustun bo''ladi.
+          Qo''llab-quvvatlanadi: uz, en, fr.'
+      tags:
+      - Structure
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Faculty'
+          description: ''
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        language:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - language
+      - title
+      - updated_at
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          nullable: true
+          maxLength: 500
+        phone:
+          type: string
+          nullable: true
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactAddress'
+          readOnly: true
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactPhone'
+          readOnly: true
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactEmail'
+          readOnly: true
+        working_hours:
+          type: string
+          nullable: true
+          maxLength: 255
+        map_url:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 1000
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - addresses
+      - created_at
+      - emails
+      - id
+      - phones
+      - updated_at
+    ContactAddress:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          maxLength: 500
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - address
+      - created_at
+      - id
+      - updated_at
+    ContactEmail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - updated_at
+    ContactPhone:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - phone
+      - updated_at
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        faculty:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        head_name:
+          type: string
+          nullable: true
+          maxLength: 255
+        contact_info:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - description
+      - faculty
+      - id
+      - title
+      - updated_at
+    Faculty:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        icon:
+          type: string
+          format: uri
+          nullable: true
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - departments
+      - description
+      - id
+      - title
+      - updated_at
+    History:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - title
+      - updated_at
+    LanguageOption:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - name
+    LanguagesResponse:
+      type: object
+      properties:
+        default_language:
+          type: string
+        languages:
+          type: array
+          items:
+            $ref: '#/components/schemas/LanguageOption'
+      required:
+      - default_language
+      - languages
+    NewsDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        category_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          readOnly: true
+          nullable: true
+        summary:
+          type: string
+          nullable: true
+          maxLength: 500
+        main_image:
+          type: string
+          format: uri
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+        language:
+          type: string
+          readOnly: true
+        is_published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        content:
+          type: string
+        content_paragraphs:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsImage'
+          readOnly: true
+        videos:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsVideo'
+          readOnly: true
+      required:
+      - category_title
+      - content
+      - content_paragraphs
+      - created_at
+      - id
+      - images
+      - language
+      - short_description
+      - slug
+      - title
+      - updated_at
+      - videos
+    NewsImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+        caption:
+          type: string
+          nullable: true
+          maxLength: 255
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - id
+      - image
+    NewsList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          type: integer
+          nullable: true
+        category_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          readOnly: true
+          nullable: true
+        summary:
+          type: string
+          nullable: true
+          maxLength: 500
+        main_image:
+          type: string
+          format: uri
+          nullable: true
+        published_at:
+          type: string
+          format: date-time
+        language:
+          type: string
+          readOnly: true
+        is_published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category_title
+      - created_at
+      - id
+      - language
+      - short_description
+      - slug
+      - title
+      - updated_at
+    NewsVideo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          nullable: true
+          maxLength: 255
+        video:
+          type: string
+          format: uri
+          nullable: true
+        video_url:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 1000
+        source:
+          type: string
+          format: uri
+          readOnly: true
+        preview_image:
+          type: string
+          format: uri
+          nullable: true
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - id
+      - source
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedContactList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+    PaginatedDepartmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
+    PaginatedFacultyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Faculty'
+    PaginatedHistoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/History'
+    PaginatedNewsListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsList'
+    PaginatedSliderCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SliderCategory'
+    PaginatedSliderItemList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SliderItem'
+    PaginatedSocialLinkList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SocialLink'
+    PaginatedStaticPageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaticPage'
+    SliderCategory:
+      type: object
+      description: Slider kategoriyasi serializer - categroriyani ifodalaydi
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Kategoriya ID
+        name:
+          type: string
+          description: Kategoriya nomi (3 tilda avtomatik tarjima qilinadi)
+          maxLength: 120
+      required:
+      - id
+      - name
+    SliderItem:
+      type: object
+      description: Slider elementi serializer - rasm/video va tavsifi
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/SliderCategory'
+          readOnly: true
+          description: Slider elementi tegirgan kategoriya
+        title:
+          type: string
+          description: Slider sarlavhasi (3 tilda avtomatik tarjima qilinadi)
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+          description: Slider tavsifi (3 tilda avtomatik tarjima qilinadi)
+        image:
+          type: string
+          format: uri
+          readOnly: true
+          description: Slider uchun rasm (absolute URL)
+        video:
+          type: string
+          format: uri
+          readOnly: true
+          description: Slider uchun video fayl (absolute URL)
+        order:
+          type: integer
+          description: Tartib raqami (kichikdan kattaga)
+      required:
+      - category
+      - description
+      - id
+      - image
+      - order
+      - title
+      - video
+    SocialLink:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        platform:
+          type: string
+          maxLength: 255
+        url:
+          type: string
+          format: uri
+          maxLength: 200
+        icon:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - platform
+      - updated_at
+      - url
+    StaticPage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - title
+      - updated_at

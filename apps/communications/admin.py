@@ -1,12 +1,25 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
-from modeltranslation.admin import TabbedTranslationAdmin
+from unfold.admin import ModelAdmin, TabularInline
+from modeltranslation.admin import TabbedTranslationAdmin, TranslationTabularInline
 from apps.common.admin_mixins import TranslationSafeAdminMixin
-from .models import Contact, SocialLink
+from .models import Contact, SocialLink, ContactAddress, ContactPhone, ContactEmail
+
+class ContactAddressInline(TranslationTabularInline, TabularInline):
+    model = ContactAddress
+    extra = 1
+
+class ContactPhoneInline(TabularInline):
+    model = ContactPhone
+    extra = 1
+
+class ContactEmailInline(TabularInline):
+    model = ContactEmail
+    extra = 1
 
 @admin.register(Contact)
 class ContactAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
     list_display = ('address', 'phone', 'email')
+    inlines = [ContactAddressInline, ContactPhoneInline, ContactEmailInline]
     ordering = ('-created_at',)
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
