@@ -10,8 +10,15 @@ class TranslationSafeAdminMixin:
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj=obj, change=change, **kwargs)
+        default_language = getattr(settings, 'MODELTRANSLATION_DEFAULT_LANGUAGE', 'uz')
         for field_name, field in form.base_fields.items():
             if self._is_translation_field(field_name):
+                # Ensure the default language field inherits the base field's required status
+                if field_name.endswith(f'_{default_language}'):
+                    base_field_name = self._base_field_name(field_name)
+                    base_field = form.base_fields.get(base_field_name)
+                    if base_field and base_field.required:
+                        continue
                 field.required = False
         return form
 

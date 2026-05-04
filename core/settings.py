@@ -315,9 +315,14 @@ UNFOLD = {
                         "link": f"/{ADMIN_URL}common/staticpage/",
                     },
                     {
-                        "title": "Sliderlar",
+                        "title": "Slider elementlari",
                         "icon": "view_carousel",
-                        "link": f"/{ADMIN_URL}common/slider/",
+                        "link": f"/{ADMIN_URL}common/slideritem/",
+                    },
+                    {
+                        "title": "Slider kategoriyalari",
+                        "icon": "category",
+                        "link": f"/{ADMIN_URL}common/slidercategory/",
                     },
                 ],
             },

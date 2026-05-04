@@ -1,17 +1,17 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, TabularInline
 from modeltranslation.admin import TabbedTranslationAdmin
 from apps.common.admin_mixins import TranslationSafeAdminMixin
 from .models import Category, News, NewsImage, NewsVideo
 
 
-class NewsImageInline(admin.TabularInline):
+class NewsImageInline(TabularInline):
     model = NewsImage
     extra = 1
     fields = ('image', 'caption', 'order', 'is_active')
 
 
-class NewsVideoInline(admin.TabularInline):
+class NewsVideoInline(TabularInline):
     model = NewsVideo
     extra = 1
     fields = ('title', 'video', 'video_url', 'preview_image', 'order', 'is_active')

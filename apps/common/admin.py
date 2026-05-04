@@ -64,13 +64,7 @@ class SliderItemInline(StackedInline):
     fields = (
         'category',
         'title',
-        'title_uz',
-        'title_en',
-        'title_fr',
         'description',
-        'description_uz',
-        'description_en',
-        'description_fr',
         'image',
         'video',
         'is_active',
@@ -92,7 +86,7 @@ class SliderCategoryAdmin(
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         ('Asosiy ma\'lumotlar', {
-            'fields': ('name', 'name_uz', 'name_en', 'name_fr')
+            'fields': ('name',)
         }),
         ('Status', {
             'fields': ('is_active', 'order')
@@ -129,24 +123,15 @@ class SliderItemAdmin(
     readonly_fields = ('created_at', 'updated_at')
     search_fields = (
         'title',
-        'title_uz',
-        'title_en',
-        'title_fr',
         'description',
-        'description_uz',
-        'description_en',
-        'description_fr',
         'category__name',
-        'category__name_uz',
-        'category__name_en',
-        'category__name_fr',
     )
     fieldsets = (
         ('Kategoriya va sarlavha', {
-            'fields': ('category', 'title', 'title_uz', 'title_en', 'title_fr')
+            'fields': ('category', 'title')
         }),
         ('Tavsif', {
-            'fields': ('description', 'description_uz', 'description_en', 'description_fr'),
+            'fields': ('description',),
             'classes': ('wide',)
         }),
         ('Media', {
