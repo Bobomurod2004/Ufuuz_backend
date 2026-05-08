@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.types import OpenApiTypes
@@ -46,6 +46,30 @@ class CategoryViewSet(LanguageAwareReadOnlyModelViewSet):
 class NewsViewSet(LanguageAwareReadOnlyModelViewSet):
     queryset = News.objects.filter(is_published=True).select_related('category')
     lookup_field = 'slug'
+
+    def get_object(self):
+        """
+        Barcha til sluglarida qidiradi.
+
+        modeltranslation 'slug' fieldini slug_uz, slug_en, slug_fr kabi
+        alohida fieldlarga ajratadi. Faol til bilan standart lookup faqat
+        shu tilning slug fieldida qidiradi — boshqa tildagi slug yuborilsa
+        404 qaytaradi. Bu metod barcha tillar bo'yicha OR qidiruvi qiladi.
+        """
+        from django.conf import settings
+
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        slug_value = self.kwargs[lookup_url_kwarg]
+
+        # settings.LANGUAGES dan dinamik ravishda barcha slug fieldlarini qidirish
+        slug_query = Q()
+        for lang_code, _ in settings.LANGUAGES:
+            slug_query |= Q(**{f'slug_{lang_code}': slug_value})
+
+        obj = get_object_or_404(queryset, slug_query)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     def get_queryset(self):
         queryset = super().get_queryset()
