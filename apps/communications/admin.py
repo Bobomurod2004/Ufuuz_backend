@@ -1,7 +1,10 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from modeltranslation.admin import TabbedTranslationAdmin, TranslationTabularInline
-from apps.common.admin_mixins import TranslationSafeAdminMixin
+from apps.common.admin_mixins import (
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+)
 from .models import Contact, SocialLink, ContactAddress, ContactPhone, ContactEmail
 
 class ContactAddressInline(TranslationTabularInline, TabularInline):
@@ -17,7 +20,12 @@ class ContactEmailInline(TabularInline):
     extra = 1
 
 @admin.register(Contact)
-class ContactAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+class ContactAdmin(
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ('address', 'phone', 'email')
     inlines = [ContactAddressInline, ContactPhoneInline, ContactEmailInline]
     ordering = ('-created_at',)
@@ -29,7 +37,7 @@ class ContactAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin
         return ('address', 'phone', 'email') + translated_fields
 
 @admin.register(SocialLink)
-class SocialLinkAdmin(ModelAdmin):
+class SocialLinkAdmin(SuperuserOnlyAdminMixin, ModelAdmin):
     list_display = ('platform', 'url')
     search_fields = ('platform', 'url')
     ordering = ('platform',)

@@ -30,6 +30,7 @@ api_v1_patterns = [
     path('structure/', include('apps.structure.urls')),
     path('news/', include('apps.news.urls')),
     path('communications/', include('apps.communications.urls')),
+    path('admissions/', include('apps.admissions.urls')),
 ]
 
 urlpatterns += [

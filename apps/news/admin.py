@@ -1,7 +1,10 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from modeltranslation.admin import TabbedTranslationAdmin
-from apps.common.admin_mixins import TranslationSafeAdminMixin
+from apps.common.admin_mixins import (
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+)
 from .models import Category, News, NewsImage, NewsVideo
 
 
@@ -17,7 +20,12 @@ class NewsVideoInline(TabularInline):
     fields = ('title', 'video', 'video_url', 'preview_image', 'order', 'is_active')
 
 @admin.register(Category)
-class CategoryAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+class CategoryAdmin(
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ('id', 'title')
     ordering = ('title',)
     list_per_page = 20
@@ -28,7 +36,12 @@ class CategoryAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmi
 
 
 @admin.register(News)
-class NewsAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+class NewsAdmin(
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ('id', 'title', 'category', 'published_at', 'is_published', 'created_at')
     list_filter = ('category', 'is_published', 'published_at')
     ordering = ('-published_at', '-created_at')

@@ -109,6 +109,7 @@ class ApiTests(TestCase):
             '/api/v1/news/news/',
             '/api/v1/communications/contact/',
             '/api/v1/communications/social-links/',
+            '/api/v1/admissions/applications/',
         ]
 
         if settings.ENABLE_API_DOCS:

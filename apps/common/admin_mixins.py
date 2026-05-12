@@ -46,3 +46,24 @@ class TranslationSafeAdminMixin:
 
     def _base_field_name(self, field_name: str) -> str:
         return field_name.rsplit('_', 1)[0]
+
+
+class SuperuserOnlyAdminMixin:
+    def _is_superuser(self, request) -> bool:
+        user = getattr(request, 'user', None)
+        return bool(user and user.is_authenticated and user.is_active and user.is_superuser)
+
+    def has_module_permission(self, request):
+        return self._is_superuser(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self._is_superuser(request)
+
+    def has_add_permission(self, request):
+        return self._is_superuser(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self._is_superuser(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self._is_superuser(request)

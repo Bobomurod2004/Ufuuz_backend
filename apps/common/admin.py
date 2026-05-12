@@ -1,7 +1,10 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, StackedInline
 from modeltranslation.admin import TabbedTranslationAdmin
-from apps.common.admin_mixins import TranslationSafeAdminMixin
+from apps.common.admin_mixins import (
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+)
 from .models import (
     History,
     SliderCategory,
@@ -16,6 +19,7 @@ admin.site.index_title = "Ma'lumotlarni boshqarish"
 
 @admin.register(History)
 class HistoryAdmin(
+    SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
     ModelAdmin,
     TabbedTranslationAdmin,
@@ -34,6 +38,7 @@ class HistoryAdmin(
 
 @admin.register(StaticPage)
 class StaticPageAdmin(
+    SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
     ModelAdmin,
     TabbedTranslationAdmin,
@@ -75,6 +80,7 @@ class SliderItemInline(StackedInline):
 
 @admin.register(SliderCategory)
 class SliderCategoryAdmin(
+    SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
     ModelAdmin,
     TabbedTranslationAdmin,
@@ -106,6 +112,7 @@ class SliderCategoryAdmin(
 
 @admin.register(SliderItem)
 class SliderItemAdmin(
+    SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
     ModelAdmin,
     TabbedTranslationAdmin,

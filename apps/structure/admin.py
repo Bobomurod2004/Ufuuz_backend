@@ -1,11 +1,19 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from modeltranslation.admin import TabbedTranslationAdmin
-from apps.common.admin_mixins import TranslationSafeAdminMixin
+from apps.common.admin_mixins import (
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+)
 from .models import Faculty, Department
 
 @admin.register(Faculty)
-class FacultyAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+class FacultyAdmin(
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ('title', 'created_at')
     ordering = ('title',)
     list_per_page = 20
@@ -16,7 +24,12 @@ class FacultyAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin
         return ('title', 'description') + translated_fields
 
 @admin.register(Department)
-class DepartmentAdmin(TranslationSafeAdminMixin, ModelAdmin, TabbedTranslationAdmin):
+class DepartmentAdmin(
+    SuperuserOnlyAdminMixin,
+    TranslationSafeAdminMixin,
+    ModelAdmin,
+    TabbedTranslationAdmin,
+):
     list_display = ('title', 'faculty', 'head_name')
     list_filter = ('faculty',)
     ordering = ('title',)

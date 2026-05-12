@@ -1,0 +1,104 @@
+from django.conf import settings
+from django.core.validators import RegexValidator
+from django.db import models
+
+from apps.common.models import BaseModel
+
+
+passport_series_validator = RegexValidator(
+    regex=r'^[A-Za-z]{2}$',
+    message="Passport seriyasi aynan 2 ta harfdan iborat bo'lishi kerak.",
+)
+passport_number_validator = RegexValidator(
+    regex=r'^\d{7}$',
+    message="Passport raqami aynan 7 xonali raqam bo'lishi kerak.",
+)
+phone_number_validator = RegexValidator(
+    regex=r'^\+?\d{9,15}$',
+    message=(
+        "Telefon raqami + belgisi bilan yoki belgisiz "
+        "9 dan 15 tagacha raqamdan iborat bo'lishi kerak."
+    ),
+)
+
+
+class StudentApplication(BaseModel):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Kutilmoqda'
+        ACCEPTED = 'accepted', 'Qabul qilindi'
+        REJECTED = 'rejected', 'Rad etildi'
+
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100)
+    passport_series = models.CharField(max_length=2, validators=[passport_series_validator])
+    passport_number = models.CharField(max_length=7, validators=[passport_number_validator])
+    phone_number = models.CharField(max_length=16, validators=[phone_number_validator])
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+        db_index=True,
+    )
+    review_note = models.TextField(blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='reviewed_student_applications',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'Talaba arizasi'
+        verbose_name_plural = 'Talaba arizalari'
+        ordering = ['-created_at', '-id']
+
+    def clean(self):
+        super().clean()
+        if self.passport_series:
+            self.passport_series = self.passport_series.upper()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"{self.last_name} {self.first_name} ({self.passport_series}{self.passport_number})"
+        )
+
+
+class ApplicationDiploma(BaseModel):
+    application = models.ForeignKey(
+        StudentApplication,
+        related_name='diplomas',
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(upload_to='admissions/diplomas/')
+
+    class Meta:
+        verbose_name = 'Diplom hujjati'
+        verbose_name_plural = 'Diplom hujjatlari'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Diplom #{self.id} - ariza #{self.application_id}"
+
+
+class ApplicationCertificate(BaseModel):
+    application = models.ForeignKey(
+        StudentApplication,
+        related_name='certificates',
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(upload_to='admissions/certificates/')
+
+    class Meta:
+        verbose_name = 'Sertifikat'
+        verbose_name_plural = 'Sertifikatlar'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Sertifikat #{self.id} - ariza #{self.application_id}"

@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'apps.structure',
     'apps.news',
     'apps.communications',
+    'apps.admissions',
 ]
 
 MIDDLEWARE = [
@@ -308,21 +309,25 @@ UNFOLD = {
                         "title": "Universitet tarixi",
                         "icon": "history",
                         "link": f"/{ADMIN_URL}common/history/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Statik sahifalar",
                         "icon": "article",
                         "link": f"/{ADMIN_URL}common/staticpage/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Slider elementlari",
                         "icon": "view_carousel",
                         "link": f"/{ADMIN_URL}common/slideritem/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Slider kategoriyalari",
                         "icon": "category",
                         "link": f"/{ADMIN_URL}common/slidercategory/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                 ],
             },
@@ -334,11 +339,13 @@ UNFOLD = {
                         "title": "Fakultetlar",
                         "icon": "account_balance",
                         "link": f"/{ADMIN_URL}structure/faculty/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Kafedralar",
                         "icon": "apartment",
                         "link": f"/{ADMIN_URL}structure/department/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                 ],
             },
@@ -350,11 +357,13 @@ UNFOLD = {
                         "title": "Kategoriyalar",
                         "icon": "category",
                         "link": f"/{ADMIN_URL}news/category/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Yangiliklar",
                         "icon": "newspaper",
                         "link": f"/{ADMIN_URL}news/news/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                 ],
             },
@@ -366,11 +375,25 @@ UNFOLD = {
                         "title": "Kontaktlar",
                         "icon": "call",
                         "link": f"/{ADMIN_URL}communications/contact/",
+                        "permission": "core.unfold_permissions.is_superuser",
                     },
                     {
                         "title": "Ijtimoiy tarmoqlar",
                         "icon": "public",
                         "link": f"/{ADMIN_URL}communications/sociallink/",
+                        "permission": "core.unfold_permissions.is_superuser",
+                    },
+                ],
+            },
+            {
+                "title": "Arizalar",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Talaba arizalari",
+                        "icon": "fact_check",
+                        "link": f"/{ADMIN_URL}admissions/studentapplication/",
+                        "permission": "core.unfold_permissions.can_access_admissions",
                     },
                 ],
             },
