@@ -6,12 +6,40 @@ from django.urls import reverse
 from .models import (
     ApplicationCertificate,
     ApplicationDiploma,
+    ApplicationDiplomaSupplement,
+    ApplicationPassportFile,
+    ApplicationPdf,
     StudentApplication,
 )
 
 
 class StudentApplicationApiTests(TestCase):
     endpoint = '/api/v1/admissions/applications/'
+
+    def _required_multi_files(self):
+        return {
+            'application_pdf_files': [
+                SimpleUploadedFile(
+                    'application.pdf',
+                    b'application-form',
+                    content_type='application/pdf',
+                ),
+            ],
+            'diploma_supplement_files': [
+                SimpleUploadedFile(
+                    'diploma-supplement.pdf',
+                    b'diploma-supplement',
+                    content_type='application/pdf',
+                ),
+            ],
+            'passport_scan_files': [
+                SimpleUploadedFile(
+                    'passport.pdf',
+                    b'passport-scan',
+                    content_type='application/pdf',
+                ),
+            ],
+        }
 
     def test_can_create_application_with_multiple_files(self):
         diploma_1 = SimpleUploadedFile('diplom-1.pdf', b'diploma-one', content_type='application/pdf')
@@ -29,6 +57,7 @@ class StudentApplicationApiTests(TestCase):
             'passport_series': 'ab',
             'passport_number': '1234567',
             'phone_number': '+998901234567',
+            **self._required_multi_files(),
             'diploma_files': [diploma_1, diploma_2],
             'certificate_files': [certificate_1],
         }
@@ -38,10 +67,16 @@ class StudentApplicationApiTests(TestCase):
         self.assertEqual(StudentApplication.objects.count(), 1)
         self.assertEqual(ApplicationDiploma.objects.count(), 2)
         self.assertEqual(ApplicationCertificate.objects.count(), 1)
+        self.assertEqual(ApplicationPdf.objects.count(), 1)
+        self.assertEqual(ApplicationDiplomaSupplement.objects.count(), 1)
+        self.assertEqual(ApplicationPassportFile.objects.count(), 1)
 
         application = StudentApplication.objects.first()
         self.assertIsNotNone(application)
         self.assertEqual(application.passport_series, 'AB')
+        self.assertEqual(application.application_pdfs.count(), 1)
+        self.assertEqual(application.diploma_supplements.count(), 1)
+        self.assertEqual(application.passport_files.count(), 1)
         self.assertEqual(application.status, StudentApplication.Status.PENDING)
         self.assertEqual(response.json()['status'], StudentApplication.Status.PENDING)
 
@@ -53,6 +88,7 @@ class StudentApplicationApiTests(TestCase):
             'passport_series': 'ABC',
             'passport_number': '1234567',
             'phone_number': '+998901234567',
+            **self._required_multi_files(),
             'diploma_files': [
                 SimpleUploadedFile('diplom.pdf', b'diploma', content_type='application/pdf')
             ],
@@ -70,6 +106,7 @@ class StudentApplicationApiTests(TestCase):
             'passport_series': 'AB',
             'passport_number': '12A4567',
             'phone_number': '+998901234567',
+            **self._required_multi_files(),
             'diploma_files': [
                 SimpleUploadedFile('diplom.pdf', b'diploma', content_type='application/pdf')
             ],
@@ -87,11 +124,36 @@ class StudentApplicationApiTests(TestCase):
             'passport_series': 'AB',
             'passport_number': '1234567',
             'phone_number': '+998901234567',
+            **self._required_multi_files(),
         }
 
         response = self.client.post(self.endpoint, data=payload)
         self.assertEqual(response.status_code, 400)
         self.assertIn('diploma_files', response.json())
+
+    def test_passport_file_is_required(self):
+        payload = {
+            'first_name': 'Ali',
+            'last_name': 'Valiyev',
+            'middle_name': 'Karimovich',
+            'passport_series': 'AB',
+            'passport_number': '1234567',
+            'phone_number': '+998901234567',
+            'diploma_supplement_files': [
+                SimpleUploadedFile(
+                    'diploma-supplement.pdf',
+                    b'diploma-supplement',
+                    content_type='application/pdf',
+                ),
+            ],
+            'diploma_files': [
+                SimpleUploadedFile('diplom.pdf', b'diploma', content_type='application/pdf')
+            ],
+        }
+
+        response = self.client.post(self.endpoint, data=payload)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('passport_scan_files', response.json())
 
 
 class StudentApplicationAdminPermissionTests(TestCase):
@@ -115,6 +177,30 @@ class StudentApplicationAdminPermissionTests(TestCase):
             passport_series='AB',
             passport_number='1234567',
             phone_number='+998901234567',
+        )
+        ApplicationPdf.objects.create(
+            application=self.application,
+            file=SimpleUploadedFile(
+                'application.pdf',
+                b'application-form',
+                content_type='application/pdf',
+            ),
+        )
+        ApplicationDiplomaSupplement.objects.create(
+            application=self.application,
+            file=SimpleUploadedFile(
+                'supplement.pdf',
+                b'diploma-supplement',
+                content_type='application/pdf',
+            ),
+        )
+        ApplicationPassportFile.objects.create(
+            application=self.application,
+            file=SimpleUploadedFile(
+                'passport.pdf',
+                b'passport-scan',
+                content_type='application/pdf',
+            ),
         )
         ApplicationDiploma.objects.create(
             application=self.application,
@@ -166,6 +252,9 @@ class StudentApplicationAdminPermissionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'diploma')
         self.assertContains(response, 'certificate')
+        self.assertContains(response, 'application')
+        self.assertContains(response, 'supplement')
+        self.assertContains(response, 'passport')
         self.assertNotContains(response, 'name="_save"')
 
     def test_staff_admin_cannot_delete_application(self):

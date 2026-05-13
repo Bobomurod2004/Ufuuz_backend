@@ -4,6 +4,9 @@ from unfold.admin import ModelAdmin, TabularInline
 from .models import (
     ApplicationCertificate,
     ApplicationDiploma,
+    ApplicationDiplomaSupplement,
+    ApplicationPassportFile,
+    ApplicationPdf,
     StudentApplication,
 )
 
@@ -31,6 +34,69 @@ class ApplicationDiplomaInline(TabularInline):
 
 class ApplicationCertificateInline(TabularInline):
     model = ApplicationCertificate
+    extra = 0
+    fields = ('file', 'created_at', 'updated_at')
+    readonly_fields = ('file', 'created_at', 'updated_at')
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        user = getattr(request, 'user', None)
+        return bool(user and user.is_authenticated and user.is_active and user.is_staff)
+
+
+class ApplicationPdfInline(TabularInline):
+    model = ApplicationPdf
+    extra = 0
+    fields = ('file', 'created_at', 'updated_at')
+    readonly_fields = ('file', 'created_at', 'updated_at')
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        user = getattr(request, 'user', None)
+        return bool(user and user.is_authenticated and user.is_active and user.is_staff)
+
+
+class ApplicationDiplomaSupplementInline(TabularInline):
+    model = ApplicationDiplomaSupplement
+    extra = 0
+    fields = ('file', 'created_at', 'updated_at')
+    readonly_fields = ('file', 'created_at', 'updated_at')
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        user = getattr(request, 'user', None)
+        return bool(user and user.is_authenticated and user.is_active and user.is_staff)
+
+
+class ApplicationPassportFileInline(TabularInline):
+    model = ApplicationPassportFile
     extra = 0
     fields = ('file', 'created_at', 'updated_at')
     readonly_fields = ('file', 'created_at', 'updated_at')
@@ -87,7 +153,13 @@ class StudentApplicationAdmin(ModelAdmin):
         'created_at',
         'updated_at',
     )
-    inlines = [ApplicationDiplomaInline, ApplicationCertificateInline]
+    inlines = [
+        ApplicationPdfInline,
+        ApplicationDiplomaSupplementInline,
+        ApplicationPassportFileInline,
+        ApplicationDiplomaInline,
+        ApplicationCertificateInline,
+    ]
     fieldsets = (
         ("Ariza ma'lumotlari", {
             'fields': (

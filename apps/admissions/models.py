@@ -102,3 +102,54 @@ class ApplicationCertificate(BaseModel):
 
     def __str__(self):
         return f"Sertifikat #{self.id} - ariza #{self.application_id}"
+
+
+class ApplicationPdf(BaseModel):
+    application = models.ForeignKey(
+        StudentApplication,
+        related_name='application_pdfs',
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(upload_to='admissions/application_forms/')
+
+    class Meta:
+        verbose_name = 'Ariza PDF hujjati'
+        verbose_name_plural = 'Ariza PDF hujjatlari'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Ariza PDF #{self.id} - ariza #{self.application_id}"
+
+
+class ApplicationDiplomaSupplement(BaseModel):
+    application = models.ForeignKey(
+        StudentApplication,
+        related_name='diploma_supplements',
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(upload_to='admissions/diploma_supplements/')
+
+    class Meta:
+        verbose_name = 'Diplom ilovasi fayli'
+        verbose_name_plural = 'Diplom ilovasi fayllari'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Diplom ilovasi #{self.id} - ariza #{self.application_id}"
+
+
+class ApplicationPassportFile(BaseModel):
+    application = models.ForeignKey(
+        StudentApplication,
+        related_name='passport_files',
+        on_delete=models.CASCADE,
+    )
+    file = models.FileField(upload_to='admissions/passports/')
+
+    class Meta:
+        verbose_name = 'Passport fayli'
+        verbose_name_plural = 'Passport fayllari'
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Passport #{self.id} - ariza #{self.application_id}"
