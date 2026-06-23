@@ -11,15 +11,16 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .models import (
-    ApplicationCertificate,
+    ApplicationCV,
     ApplicationDiploma,
-    ApplicationDiplomaSupplement,
-    ApplicationPassportFile,
-    ApplicationPdf,
+    ApplicationIdentityDocument,
+    ApplicationLanguageCertificate,
+    ApplicationMotivationLetter,
+    ApplicationTranscript,
     StudentApplication,
 )
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# ── Constants ────────────────────────────────────────────────────────────────
 
 _STATUS_STYLE = {
     StudentApplication.Status.PENDING: (
@@ -38,22 +39,22 @@ _STATUS_LABEL = {
     StudentApplication.Status.REJECTED: '❌ Rad etildi',
 }
 _DOC_GROUPS = (
-    ('application_pdfs', 'ariza_pdf'),
-    ('diploma_supplements', 'diplom_ilovasi'),
-    ('passport_files', 'pasport'),
-    ('diplomas', 'diplom'),
-    ('certificates', 'sertifikat'),
+    ('cvs', 'tarjima_hol'),
+    ('motivation_letters', 'motivatsion_xat'),
+    ('identity_documents', 'shaxs_hujjati'),
+    ('language_certificates', 'til_sertifikati'),
+    ('transcripts', 'baholar_varaqasi'),
+    ('diplomas', 'universitet_diplomi'),
 )
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _build_zip(queryset):
+    prefetch = [related for related, _ in _DOC_GROUPS]
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for app in queryset.prefetch_related(
-            'application_pdfs', 'diploma_supplements',
-            'passport_files', 'diplomas', 'certificates',
-        ):
+        for app in queryset.prefetch_related(*prefetch):
             folder = (
                 f"{app.last_name}_{app.first_name}"
                 f"_{app.passport_series}{app.passport_number}"
@@ -65,19 +66,24 @@ def _build_zip(queryset):
                     try:
                         name = os.path.basename(doc.file.name)
                         with doc.file.open('rb') as f:
-                            zf.writestr(f"{folder}/{subfolder}/{i}_{name}", f.read())
+                            zf.writestr(
+                                f"{folder}/{subfolder}/{i}_{name}",
+                                f.read(),
+                            )
                     except (FileNotFoundError, OSError):
                         pass
     buffer.seek(0)
     return buffer
 
 
-# ── Inline classes ────────────────────────────────────────────────────────────
+# ── Inline classes ───────────────────────────────────────────────────────────
 
 class _ReadOnlyDocumentInline(admin.TabularInline):
     extra = 0
     can_delete = False
     show_change_link = False
+    readonly_fields = ('file', 'created_at')
+    fields = ('file', 'created_at')
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -90,50 +96,48 @@ class _ReadOnlyDocumentInline(admin.TabularInline):
 
     def has_view_permission(self, request, obj=None):
         user = getattr(request, 'user', None)
-        return bool(user and user.is_authenticated and user.is_active and user.is_staff)
+        return bool(
+            user and user.is_authenticated and user.is_active and user.is_staff
+        )
 
 
-class ApplicationPdfInline(_ReadOnlyDocumentInline):
-    model = ApplicationPdf
-    verbose_name = 'Ariza PDF'
-    verbose_name_plural = '📄 Ariza PDF hujjatlari'
-    readonly_fields = ('file', 'created_at')
-    fields = ('file', 'created_at')
+class ApplicationCVInline(_ReadOnlyDocumentInline):
+    model = ApplicationCV
+    verbose_name = 'Tarjima hol'
+    verbose_name_plural = '📄 Tarjima hollar'
+
+
+class ApplicationMotivationLetterInline(_ReadOnlyDocumentInline):
+    model = ApplicationMotivationLetter
+    verbose_name = 'Motivatsion xat'
+    verbose_name_plural = '✉️ Motivatsion xatlar'
+
+
+class ApplicationIdentityDocumentInline(_ReadOnlyDocumentInline):
+    model = ApplicationIdentityDocument
+    verbose_name = 'Shaxsni tasdiqlovchi hujjat'
+    verbose_name_plural = '🪪 Shaxsni tasdiqlovchi hujjatlar'
+
+
+class ApplicationLanguageCertificateInline(_ReadOnlyDocumentInline):
+    model = ApplicationLanguageCertificate
+    verbose_name = 'Til sertifikati'
+    verbose_name_plural = '📜 Til sertifikatlari'
+
+
+class ApplicationTranscriptInline(_ReadOnlyDocumentInline):
+    model = ApplicationTranscript
+    verbose_name = 'Baholar varaqasi'
+    verbose_name_plural = '📊 Baholar varaqlari'
 
 
 class ApplicationDiplomaInline(_ReadOnlyDocumentInline):
     model = ApplicationDiploma
-    verbose_name = 'Diplom'
-    verbose_name_plural = '🎓 Diplomlar'
-    readonly_fields = ('file', 'created_at')
-    fields = ('file', 'created_at')
+    verbose_name = 'Universitet diplomi'
+    verbose_name_plural = '🎓 Universitet diplomlari'
 
 
-class ApplicationDiplomaSupplementInline(_ReadOnlyDocumentInline):
-    model = ApplicationDiplomaSupplement
-    verbose_name = 'Diplom ilovasi'
-    verbose_name_plural = '📎 Diplom ilovasi fayllari'
-    readonly_fields = ('file', 'created_at')
-    fields = ('file', 'created_at')
-
-
-class ApplicationPassportFileInline(_ReadOnlyDocumentInline):
-    model = ApplicationPassportFile
-    verbose_name = 'Pasport fayli'
-    verbose_name_plural = '🪪 Pasport fayllari'
-    readonly_fields = ('file', 'created_at')
-    fields = ('file', 'created_at')
-
-
-class ApplicationCertificateInline(_ReadOnlyDocumentInline):
-    model = ApplicationCertificate
-    verbose_name = 'Sertifikat'
-    verbose_name_plural = '📜 Sertifikatlar'
-    readonly_fields = ('file', 'created_at')
-    fields = ('file', 'created_at')
-
-
-# ── Main ModelAdmin ───────────────────────────────────────────────────────────
+# ── Main ModelAdmin ──────────────────────────────────────────────────────────
 
 @admin.register(StudentApplication)
 class StudentApplicationAdmin(admin.ModelAdmin):
@@ -155,13 +159,19 @@ class StudentApplicationAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
     list_per_page = 25
     date_hierarchy = 'created_at'
-    actions = ['mark_accepted', 'mark_rejected', 'download_documents_zip', 'send_email_action']
+    actions = [
+        'mark_accepted',
+        'mark_rejected',
+        'download_documents_zip',
+        'send_email_action',
+    ]
     inlines = [
-        ApplicationPdfInline,
-        ApplicationDiplomaSupplementInline,
-        ApplicationPassportFileInline,
+        ApplicationCVInline,
+        ApplicationMotivationLetterInline,
+        ApplicationIdentityDocumentInline,
+        ApplicationLanguageCertificateInline,
+        ApplicationTranscriptInline,
         ApplicationDiplomaInline,
-        ApplicationCertificateInline,
     ]
 
     _always_readonly = (
@@ -197,7 +207,7 @@ class StudentApplicationAdmin(admin.ModelAdmin):
             }),
         )
 
-    # ── Custom URLs ───────────────────────────────────────────────────
+    # ── Custom URLs ────────────────────────────────────────────────────
 
     def get_urls(self):
         urls = super().get_urls()
@@ -237,8 +247,7 @@ class StudentApplicationAdmin(admin.ModelAdmin):
         if request.method == 'POST' and 'subject' in request.POST:
             subject = request.POST.get('subject', '').strip()
             message = request.POST.get('message', '').strip()
-            sent = 0
-            failed = 0
+            sent = failed = 0
             for app in recipients:
                 try:
                     send_mail(
@@ -254,7 +263,7 @@ class StudentApplicationAdmin(admin.ModelAdmin):
             if sent:
                 self.message_user(
                     request,
-                    f'✅ {sent} ta foydalanuvchiga email muvaffaqiyatli yuborildi.',
+                    f'✅ {sent} ta foydalanuvchiga email yuborildi.',
                     messages.SUCCESS,
                 )
             if failed:
@@ -263,11 +272,12 @@ class StudentApplicationAdmin(admin.ModelAdmin):
                     f'⚠️ {failed} ta emailni yuborishda xatolik yuz berdi.',
                     messages.WARNING,
                 )
-            return redirect(reverse('admin:admissions_studentapplication_changelist'))
+            return redirect(
+                reverse('admin:admissions_studentapplication_changelist')
+            )
 
-        # Default email matni
         status_labels = {
-            StudentApplication.Status.PENDING: 'ko\'rib chiqilmoqda',
+            StudentApplication.Status.PENDING: "ko'rib chiqilmoqda",
             StudentApplication.Status.ACCEPTED: 'qabul qilindi',
             StudentApplication.Status.REJECTED: 'rad etildi',
         }
@@ -285,7 +295,8 @@ class StudentApplicationAdmin(admin.ModelAdmin):
             default_subject = "Arizangiz holati haqida"
             default_message = (
                 "Hurmatli ariza egasi,\n\n"
-                "Arizangiz ko'rib chiqildi. Qo'shimcha ma'lumot uchun biz bilan bog'laning.\n\n"
+                "Arizangiz ko'rib chiqildi. "
+                "Qo'shimcha ma'lumot uchun biz bilan bog'laning.\n\n"
                 "Hurmat bilan,\nUFU Qabul komissiyasi"
             )
 
@@ -299,7 +310,7 @@ class StudentApplicationAdmin(admin.ModelAdmin):
             'opts': StudentApplication._meta,
         })
 
-    # ── list_display columns ──────────────────────────────────────────
+    # ── list_display columns ───────────────────────────────────────────
 
     @admin.display(description='F.I.SH', ordering='last_name')
     def full_name_display(self, obj):
@@ -322,13 +333,14 @@ class StudentApplicationAdmin(admin.ModelAdmin):
     def zip_button(self, obj):
         url = reverse('admin:admissions_application_zip', args=[obj.pk])
         return format_html(
-            '<a href="{}" style="background:#0ea5e9;color:#fff;padding:4px 12px;'
-            'border-radius:6px;font-size:12px;font-weight:600;'
-            'text-decoration:none;white-space:nowrap;">⬇ ZIP</a>',
+            '<a href="{}" style="background:#0ea5e9;color:#fff;'
+            'padding:4px 12px;border-radius:6px;font-size:12px;'
+            'font-weight:600;text-decoration:none;'
+            'white-space:nowrap;">⬇ ZIP</a>',
             url,
         )
 
-    # ── Actions ───────────────────────────────────────────────────────
+    # ── Actions ────────────────────────────────────────────────────────
 
     def save_model(self, request, obj, form, change):
         if change and 'status' in form.changed_data:
@@ -360,7 +372,9 @@ class StudentApplicationAdmin(admin.ModelAdmin):
     def download_documents_zip(self, request, queryset):
         buf = _build_zip(queryset)
         resp = HttpResponse(buf.getvalue(), content_type='application/zip')
-        resp['Content-Disposition'] = 'attachment; filename="arizalar_hujjatlari.zip"'
+        resp['Content-Disposition'] = (
+            'attachment; filename="arizalar_hujjatlari.zip"'
+        )
         return resp
 
     @admin.action(description='📧 Email yuborish')
@@ -370,11 +384,13 @@ class StudentApplicationAdmin(admin.ModelAdmin):
         id_params = '&'.join(f'ids={pk}' for pk in ids)
         return redirect(f'{url}?{id_params}')
 
-    # ── Permissions ───────────────────────────────────────────────────
+    # ── Permissions ────────────────────────────────────────────────────
 
     def _can_access(self, request):
         user = getattr(request, 'user', None)
-        return bool(user and user.is_authenticated and user.is_active and user.is_staff)
+        return bool(
+            user and user.is_authenticated and user.is_active and user.is_staff
+        )
 
     def has_module_permission(self, request):
         return self._can_access(request)

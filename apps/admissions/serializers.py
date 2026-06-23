@@ -1,94 +1,86 @@
 from rest_framework import serializers
 
 from .models import (
-    ApplicationCertificate,
+    ApplicationCV,
     ApplicationDiploma,
-    ApplicationDiplomaSupplement,
-    ApplicationPassportFile,
-    ApplicationPdf,
+    ApplicationIdentityDocument,
+    ApplicationLanguageCertificate,
+    ApplicationMotivationLetter,
+    ApplicationTranscript,
     StudentApplication,
 )
 
 
-class ApplicationDiplomaSerializer(serializers.ModelSerializer):
+class _FileOnlySerializer(serializers.ModelSerializer):
     class Meta:
+        fields = ('id', 'file', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'created_at', 'updated_at')
+
+
+class ApplicationCVSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
+        model = ApplicationCV
+
+
+class ApplicationMotivationLetterSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
+        model = ApplicationMotivationLetter
+
+
+class ApplicationIdentityDocumentSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
+        model = ApplicationIdentityDocument
+
+
+class ApplicationLanguageCertificateSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
+        model = ApplicationLanguageCertificate
+
+
+class ApplicationTranscriptSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
+        model = ApplicationTranscript
+
+
+class ApplicationDiplomaSerializer(_FileOnlySerializer):
+    class Meta(_FileOnlySerializer.Meta):
         model = ApplicationDiploma
-        fields = (
-            'id',
-            'file',
-            'created_at',
-            'updated_at',
-        )
-        read_only_fields = ('id', 'created_at', 'updated_at')
-
-
-class ApplicationCertificateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationCertificate
-        fields = (
-            'id',
-            'file',
-            'created_at',
-            'updated_at',
-        )
-        read_only_fields = ('id', 'created_at', 'updated_at')
-
-
-class ApplicationPdfSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationPdf
-        fields = (
-            'id',
-            'file',
-            'created_at',
-            'updated_at',
-        )
-        read_only_fields = ('id', 'created_at', 'updated_at')
-
-
-class ApplicationDiplomaSupplementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationDiplomaSupplement
-        fields = (
-            'id',
-            'file',
-            'created_at',
-            'updated_at',
-        )
-        read_only_fields = ('id', 'created_at', 'updated_at')
-
-
-class ApplicationPassportFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApplicationPassportFile
-        fields = (
-            'id',
-            'file',
-            'created_at',
-            'updated_at',
-        )
-        read_only_fields = ('id', 'created_at', 'updated_at')
 
 
 class StudentApplicationSerializer(serializers.ModelSerializer):
+    # Read-only nested lists
+    cvs = ApplicationCVSerializer(many=True, read_only=True)
+    motivation_letters = ApplicationMotivationLetterSerializer(many=True, read_only=True)
+    identity_documents = ApplicationIdentityDocumentSerializer(many=True, read_only=True)
+    language_certificates = ApplicationLanguageCertificateSerializer(many=True, read_only=True)
+    transcripts = ApplicationTranscriptSerializer(many=True, read_only=True)
     diplomas = ApplicationDiplomaSerializer(many=True, read_only=True)
-    certificates = ApplicationCertificateSerializer(many=True, read_only=True)
-    application_pdfs = ApplicationPdfSerializer(many=True, read_only=True)
-    diploma_supplements = ApplicationDiplomaSupplementSerializer(many=True, read_only=True)
-    passport_files = ApplicationPassportFileSerializer(many=True, read_only=True)
-    application_pdf_files = serializers.ListField(
+
+    # Write-only upload fields
+    cv_files = serializers.ListField(
         child=serializers.FileField(),
         write_only=True,
         required=False,
         allow_empty=True,
     )
-    diploma_supplement_files = serializers.ListField(
+    motivation_letter_files = serializers.ListField(
         child=serializers.FileField(),
         write_only=True,
         required=False,
         allow_empty=True,
     )
-    passport_scan_files = serializers.ListField(
+    identity_document_files = serializers.ListField(
+        child=serializers.FileField(),
+        write_only=True,
+        required=True,
+    )
+    language_certificate_files = serializers.ListField(
+        child=serializers.FileField(),
+        write_only=True,
+        required=False,
+        allow_empty=True,
+    )
+    transcript_files = serializers.ListField(
         child=serializers.FileField(),
         write_only=True,
         required=False,
@@ -97,14 +89,7 @@ class StudentApplicationSerializer(serializers.ModelSerializer):
     diploma_files = serializers.ListField(
         child=serializers.FileField(),
         write_only=True,
-        required=False,
-        allow_empty=True,
-    )
-    certificate_files = serializers.ListField(
-        child=serializers.FileField(),
-        write_only=True,
-        required=False,
-        allow_empty=True,
+        required=True,
     )
 
     class Meta:
@@ -118,27 +103,32 @@ class StudentApplicationSerializer(serializers.ModelSerializer):
             'passport_number',
             'phone_number',
             'email',
-            'application_pdf_files',
-            'diploma_supplement_files',
-            'passport_scan_files',
-            'application_pdfs',
-            'diploma_supplements',
-            'passport_files',
-            'status',
+            # write-only upload fields
+            'cv_files',
+            'motivation_letter_files',
+            'identity_document_files',
+            'language_certificate_files',
+            'transcript_files',
             'diploma_files',
-            'certificate_files',
+            # read-only file lists
+            'cvs',
+            'motivation_letters',
+            'identity_documents',
+            'language_certificates',
+            'transcripts',
             'diplomas',
-            'certificates',
+            'status',
             'created_at',
             'updated_at',
         )
         read_only_fields = (
             'id',
+            'cvs',
+            'motivation_letters',
+            'identity_documents',
+            'language_certificates',
+            'transcripts',
             'diplomas',
-            'certificates',
-            'application_pdfs',
-            'diploma_supplements',
-            'passport_files',
             'status',
             'created_at',
             'updated_at',
@@ -148,86 +138,62 @@ class StudentApplicationSerializer(serializers.ModelSerializer):
         return value.upper()
 
     def validate(self, attrs):
-        diploma_files = attrs.get('diploma_files', [])
-        diploma_supplement_files = attrs.get('diploma_supplement_files', [])
-        passport_scan_files = attrs.get('passport_scan_files', [])
-
-        if self.instance is None and not diploma_files:
-            raise serializers.ValidationError(
-                {'diploma_files': "Kamida bitta diplom fayli yuklanishi kerak."}
-            )
-        if self.instance is None and not diploma_supplement_files:
-            raise serializers.ValidationError(
-                {'diploma_supplement_files': "Kamida bitta diplom ilovasi fayli yuklanishi kerak."}
-            )
-        if self.instance is None and not passport_scan_files:
-            raise serializers.ValidationError(
-                {'passport_scan_files': "Kamida bitta passport fayli yuklanishi kerak."}
-            )
+        if self.instance is None:
+            if not attrs.get('identity_document_files'):
+                raise serializers.ValidationError({
+                    'identity_document_files': (
+                        "Kamida bitta shaxsni tasdiqlovchi "
+                        "hujjat yuklanishi kerak."
+                    ),
+                })
+            if not attrs.get('diploma_files'):
+                raise serializers.ValidationError({
+                    'diploma_files': (
+                        "Kamida bitta universitet diplomi "
+                        "yuklanishi kerak."
+                    ),
+                })
         return attrs
 
     def create(self, validated_data):
-        application_pdf_files = validated_data.pop('application_pdf_files', [])
-        diploma_supplement_files = validated_data.pop('diploma_supplement_files', [])
-        passport_scan_files = validated_data.pop('passport_scan_files', [])
+        cv_files = validated_data.pop('cv_files', [])
+        motivation_letter_files = validated_data.pop('motivation_letter_files', [])
+        identity_document_files = validated_data.pop('identity_document_files', [])
+        language_certificate_files = validated_data.pop('language_certificate_files', [])
+        transcript_files = validated_data.pop('transcript_files', [])
         diploma_files = validated_data.pop('diploma_files', [])
-        certificate_files = validated_data.pop('certificate_files', [])
 
         application = StudentApplication.objects.create(**validated_data)
 
-        if application_pdf_files:
-            ApplicationPdf.objects.bulk_create(
-                [
-                    ApplicationPdf(
-                        application=application,
-                        file=application_pdf_file,
-                    )
-                    for application_pdf_file in application_pdf_files
-                ]
+        if cv_files:
+            ApplicationCV.objects.bulk_create(
+                [ApplicationCV(application=application, file=f)
+                 for f in cv_files]
             )
-
-        if diploma_supplement_files:
-            ApplicationDiplomaSupplement.objects.bulk_create(
-                [
-                    ApplicationDiplomaSupplement(
-                        application=application,
-                        file=diploma_supplement_file,
-                    )
-                    for diploma_supplement_file in diploma_supplement_files
-                ]
+        if motivation_letter_files:
+            ApplicationMotivationLetter.objects.bulk_create(
+                [ApplicationMotivationLetter(application=application, file=f)
+                 for f in motivation_letter_files]
             )
-
-        if passport_scan_files:
-            ApplicationPassportFile.objects.bulk_create(
-                [
-                    ApplicationPassportFile(
-                        application=application,
-                        file=passport_scan_file,
-                    )
-                    for passport_scan_file in passport_scan_files
-                ]
+        if identity_document_files:
+            ApplicationIdentityDocument.objects.bulk_create(
+                [ApplicationIdentityDocument(application=application, file=f)
+                 for f in identity_document_files]
             )
-
+        if language_certificate_files:
+            ApplicationLanguageCertificate.objects.bulk_create(
+                [ApplicationLanguageCertificate(application=application, file=f)
+                 for f in language_certificate_files]
+            )
+        if transcript_files:
+            ApplicationTranscript.objects.bulk_create(
+                [ApplicationTranscript(application=application, file=f)
+                 for f in transcript_files]
+            )
         if diploma_files:
             ApplicationDiploma.objects.bulk_create(
-                [
-                    ApplicationDiploma(
-                        application=application,
-                        file=diploma_file,
-                    )
-                    for diploma_file in diploma_files
-                ]
-            )
-
-        if certificate_files:
-            ApplicationCertificate.objects.bulk_create(
-                [
-                    ApplicationCertificate(
-                        application=application,
-                        file=certificate_file,
-                    )
-                    for certificate_file in certificate_files
-                ]
+                [ApplicationDiploma(application=application, file=f)
+                 for f in diploma_files]
             )
 
         return application
