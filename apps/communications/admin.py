@@ -1,5 +1,4 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin, TabularInline
 from modeltranslation.admin import TabbedTranslationAdmin, TranslationTabularInline
 from apps.common.admin_mixins import (
     SuperuserOnlyAdminMixin,
@@ -7,23 +6,26 @@ from apps.common.admin_mixins import (
 )
 from .models import Contact, SocialLink, ContactAddress, ContactPhone, ContactEmail
 
-class ContactAddressInline(TranslationTabularInline, TabularInline):
+
+class ContactAddressInline(TranslationTabularInline):
     model = ContactAddress
     extra = 1
 
-class ContactPhoneInline(TabularInline):
+
+class ContactPhoneInline(admin.TabularInline):
     model = ContactPhone
     extra = 1
 
-class ContactEmailInline(TabularInline):
+
+class ContactEmailInline(admin.TabularInline):
     model = ContactEmail
     extra = 1
+
 
 @admin.register(Contact)
 class ContactAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('address', 'phone', 'email')
@@ -33,11 +35,14 @@ class ContactAdmin(
     readonly_fields = ('created_at', 'updated_at')
 
     def get_search_fields(self, request):
-        translated_fields = tuple(f'address_{suffix}' for suffix in self.translation_suffixes)
-        return ('address', 'phone', 'email') + translated_fields
+        translated = tuple(
+            f'address_{s}' for s in self.translation_suffixes
+        )
+        return ('address', 'phone', 'email') + translated
+
 
 @admin.register(SocialLink)
-class SocialLinkAdmin(SuperuserOnlyAdminMixin, ModelAdmin):
+class SocialLinkAdmin(SuperuserOnlyAdminMixin, admin.ModelAdmin):
     list_display = ('platform', 'url')
     search_fields = ('platform', 'url')
     ordering = ('platform',)

@@ -28,26 +28,48 @@ class StudentApplication(BaseModel):
         ACCEPTED = 'accepted', 'Qabul qilindi'
         REJECTED = 'rejected', 'Rad etildi'
 
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    middle_name = models.CharField(max_length=100)
-    passport_series = models.CharField(max_length=2, validators=[passport_series_validator])
-    passport_number = models.CharField(max_length=7, validators=[passport_number_validator])
-    phone_number = models.CharField(max_length=16, validators=[phone_number_validator])
+    first_name = models.CharField(max_length=100, verbose_name='Ism')
+    last_name = models.CharField(max_length=100, verbose_name='Familiya')
+    middle_name = models.CharField(max_length=100, verbose_name='Otasining ismi')
+    passport_series = models.CharField(
+        max_length=2,
+        validators=[passport_series_validator],
+        verbose_name='Pasport seriyasi',
+    )
+    passport_number = models.CharField(
+        max_length=7,
+        validators=[passport_number_validator],
+        verbose_name='Pasport raqami',
+    )
+    phone_number = models.CharField(
+        max_length=16,
+        validators=[phone_number_validator],
+        verbose_name='Telefon raqami',
+    )
+    email = models.EmailField(blank=True, default='', verbose_name='Email manzil')
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
         db_index=True,
+        verbose_name='Holat',
     )
-    review_note = models.TextField(blank=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_note = models.TextField(
+        blank=True,
+        verbose_name='Ko\'rib chiqish izohi',
+    )
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Ko\'rib chiqilgan vaqt',
+    )
     reviewed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='reviewed_student_applications',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        verbose_name='Ko\'rib chiqqan xodim',
     )
 
     class Meta:

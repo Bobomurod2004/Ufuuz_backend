@@ -1,5 +1,4 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin, StackedInline
 from modeltranslation.admin import TabbedTranslationAdmin
 from apps.common.admin_mixins import (
     SuperuserOnlyAdminMixin,
@@ -21,7 +20,6 @@ admin.site.index_title = "Ma'lumotlarni boshqarish"
 class HistoryAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'created_at')
@@ -30,17 +28,16 @@ class HistoryAdmin(
     readonly_fields = ('created_at', 'updated_at')
 
     def get_search_fields(self, request):
-        translated_fields = tuple(
-            f'title_{suffix}' for suffix in self.translation_suffixes
+        translated = tuple(
+            f'title_{s}' for s in self.translation_suffixes
         )
-        return ('title',) + translated_fields
+        return ('title',) + translated
 
 
 @admin.register(StaticPage)
 class StaticPageAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'slug')
@@ -49,21 +46,16 @@ class StaticPageAdmin(
     readonly_fields = ('created_at', 'updated_at')
 
     def get_search_fields(self, request):
-        translated_title_fields = tuple(
-            f'title_{suffix}' for suffix in self.translation_suffixes
+        title_fields = tuple(
+            f'title_{s}' for s in self.translation_suffixes
         )
-        translated_slug_fields = tuple(
-            f'slug_{suffix}' for suffix in self.translation_suffixes
+        slug_fields = tuple(
+            f'slug_{s}' for s in self.translation_suffixes
         )
-        return (
-            'title',
-            'slug',
-            *translated_title_fields,
-            *translated_slug_fields,
-        )
+        return ('title', 'slug') + title_fields + slug_fields
 
 
-class SliderItemInline(StackedInline):
+class SliderItemInline(admin.StackedInline):
     model = SliderItem
     extra = 1
     fields = (
@@ -82,7 +74,6 @@ class SliderItemInline(StackedInline):
 class SliderCategoryAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('name', 'is_active', 'order', 'created_at')
@@ -91,30 +82,29 @@ class SliderCategoryAdmin(
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
-        ('Asosiy ma\'lumotlar', {
-            'fields': ('name',)
+        ("Asosiy ma'lumotlar", {
+            'fields': ('name',),
         }),
         ('Status', {
-            'fields': ('is_active', 'order')
+            'fields': ('is_active', 'order'),
         }),
         ('Meta', {
             'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
         }),
     )
 
     def get_search_fields(self, request):
-        translated_fields = tuple(
-            f'name_{suffix}' for suffix in self.translation_suffixes
+        translated = tuple(
+            f'name_{s}' for s in self.translation_suffixes
         )
-        return ('name',) + translated_fields
+        return ('name',) + translated
 
 
 @admin.register(SliderItem)
 class SliderItemAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = (
@@ -128,29 +118,25 @@ class SliderItemAdmin(
     ordering = ('category', 'order')
     list_per_page = 20
     readonly_fields = ('created_at', 'updated_at')
-    search_fields = (
-        'title',
-        'description',
-        'category__name',
-    )
+    search_fields = ('title', 'description', 'category__name')
     fieldsets = (
         ('Kategoriya va sarlavha', {
-            'fields': ('category', 'title')
+            'fields': ('category', 'title'),
         }),
         ('Tavsif', {
             'fields': ('description',),
-            'classes': ('wide',)
+            'classes': ('wide',),
         }),
         ('Media', {
             'fields': ('image', 'video'),
-            'description': 'Rasm va video fayllarini yuklang'
+            'description': 'Rasm va video fayllarini yuklang',
         }),
         ('Tartib va Status', {
-            'fields': ('order', 'is_active')
+            'fields': ('order', 'is_active'),
         }),
         ('Meta', {
             'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
+            'classes': ('collapse',),
         }),
     )
 
@@ -159,15 +145,9 @@ class SliderItemAdmin(
     get_title.short_description = 'Sarlavha'
 
     def get_search_fields(self, request):
-        translated_fields = []
-        for base_field in ('title', 'description'):
-            translated_fields.extend(
-                f'{base_field}_{suffix}'
-                for suffix in self.translation_suffixes
+        translated = []
+        for base in ('title', 'description'):
+            translated.extend(
+                f'{base}_{s}' for s in self.translation_suffixes
             )
-        return (
-            'category',
-            'title',
-            'description',
-            *translated_fields,
-        )
+        return ('category', 'title', 'description') + tuple(translated)

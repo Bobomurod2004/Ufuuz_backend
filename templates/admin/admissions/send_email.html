@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Email yuborish | UFU Admin{% endblock %}
+
+{% block content %}
+<h1 style="margin-bottom:24px;">📧 Ariza egalariga email yuborish</h1>
+
+{% if no_email_apps %}
+<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px;margin-bottom:20px;">
+  <strong>⚠️ Quyidagi arizalarda email manzili yo'q:</strong>
+  <ul style="margin:8px 0 0 0;padding-left:20px;">
+    {% for app in no_email_apps %}
+    <li>{{ app.last_name }} {{ app.first_name }} ({{ app.passport_series }}{{ app.passport_number }})</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if recipients %}
+<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:14px 18px;margin-bottom:20px;">
+  <strong>✅ Email yuboriladi ({{ recipients|length }} ta):</strong>
+  <ul style="margin:8px 0 0 0;padding-left:20px;">
+    {% for app in recipients %}
+    <li>{{ app.last_name }} {{ app.first_name }} — <code>{{ app.email }}</code></li>
+    {% endfor %}
+  </ul>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  {% for pk in selected_ids %}
+  <input type="hidden" name="ids" value="{{ pk }}">
+  {% endfor %}
+
+  <div style="margin-bottom:16px;">
+    <label style="display:block;font-weight:600;margin-bottom:6px;">Mavzu:</label>
+    <input
+      type="text"
+      name="subject"
+      value="{{ default_subject }}"
+      required
+      style="width:100%;max-width:680px;padding:8px 12px;border:1px solid #d1d5db;
+             border-radius:6px;font-size:14px;box-sizing:border-box;"
+    >
+  </div>
+
+  <div style="margin-bottom:20px;">
+    <label style="display:block;font-weight:600;margin-bottom:6px;">Xabar matni:</label>
+    <textarea
+      name="message"
+      rows="10"
+      required
+      style="width:100%;max-width:680px;padding:8px 12px;border:1px solid #d1d5db;
+             border-radius:6px;font-size:14px;box-sizing:border-box;resize:vertical;"
+    >{{ default_message }}</textarea>
+  </div>
+
+  <div style="display:flex;gap:10px;align-items:center;">
+    <button
+      type="submit"
+      style="background:#0ea5e9;color:#fff;border:none;padding:10px 24px;
+             border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;"
+    >
+      📤 Yuborish
+    </button>
+    <a
+      href="{% url 'admin:admissions_studentapplication_changelist' %}"
+      style="color:#6b7280;font-size:14px;text-decoration:none;"
+    >
+      Bekor qilish
+    </a>
+  </div>
+</form>
+
+{% else %}
+<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:14px 18px;">
+  <strong>❌ Tanlangan arizalarda email manzili yo'q.</strong>
+  Email yuborish uchun arizalarga email manzil kiritilgan bo'lishi kerak.
+</div>
+<p style="margin-top:16px;">
+  <a href="{% url 'admin:admissions_studentapplication_changelist' %}"
+     style="color:#0ea5e9;">← Orqaga</a>
+</p>
+{% endif %}
+{% endblock %}

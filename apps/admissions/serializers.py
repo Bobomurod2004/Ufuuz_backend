@@ -117,6 +117,7 @@ class StudentApplicationSerializer(serializers.ModelSerializer):
             'passport_series',
             'passport_number',
             'phone_number',
+            'email',
             'application_pdf_files',
             'diploma_supplement_files',
             'passport_scan_files',

@@ -1,5 +1,4 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
 from modeltranslation.admin import TabbedTranslationAdmin
 from apps.common.admin_mixins import (
     SuperuserOnlyAdminMixin,
@@ -7,11 +6,11 @@ from apps.common.admin_mixins import (
 )
 from .models import Faculty, Department
 
+
 @admin.register(Faculty)
 class FacultyAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'created_at')
@@ -20,14 +19,16 @@ class FacultyAdmin(
     readonly_fields = ('created_at', 'updated_at')
 
     def get_search_fields(self, request):
-        translated_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
-        return ('title', 'description') + translated_fields
+        translated = tuple(
+            f'title_{s}' for s in self.translation_suffixes
+        )
+        return ('title', 'description') + translated
+
 
 @admin.register(Department)
 class DepartmentAdmin(
     SuperuserOnlyAdminMixin,
     TranslationSafeAdminMixin,
-    ModelAdmin,
     TabbedTranslationAdmin,
 ):
     list_display = ('title', 'faculty', 'head_name')
@@ -37,5 +38,7 @@ class DepartmentAdmin(
     readonly_fields = ('created_at', 'updated_at')
 
     def get_search_fields(self, request):
-        translated_fields = tuple(f'title_{suffix}' for suffix in self.translation_suffixes)
-        return ('title', 'head_name', 'contact_info') + translated_fields
+        translated = tuple(
+            f'title_{s}' for s in self.translation_suffixes
+        )
+        return ('title', 'head_name', 'contact_info') + translated
